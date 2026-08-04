@@ -1,0 +1,6 @@
+# Claude Code local/machine-specific state — not shared between collaborators
+.claude/settings.local.json
+.claude/skills/
+.agents/
+
+node_modules/
