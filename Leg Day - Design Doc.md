@@ -21,23 +21,26 @@ Roblox game: a vertical climbing game where the only way up is a timing-based ju
 
 ## Legs: two progression tracks
 
-- **Training** (skill, free, repeatable): a gym on each island, with leg machines (squat rack, calf raise, leg press, etc.) that raise a "Leg Level" stat. Rewards playtime and skill, not just spend.
-  - The starting/main island has only basic equipment (light weights, low Leg Level cap).
-  - Every island higher up has heavier weights than the one before, raising the Leg Level cap further — so training itself is gated behind having climbed there first, not just behind currency.
-  - Mechanic: click the screen to do reps. A rep has a 2-second charge-up during which sustained clicking raises the gain multiplier, scaling with click speed up to 5 clicks/sec, where it locks at a 2x cap (going faster than 5 cps grants nothing further). Rewards active engagement over walking away and idling, without turning training into an unbounded numbers race.
-  - Same server-authority principle as the jump bar: the server should count/validate click timestamps itself (and can rate-limit or flag inhuman click rates) rather than trusting a client-reported multiplier — otherwise an autoclicker/macro trivially sits at the 2x cap forever.
-  - Pacing target: each island should take roughly the same 3-5 minutes of active training to reach the next island's strength threshold — long enough to feel like progress, short enough to not lose players. Achieved by keeping the rep count needed roughly constant per island (~40-60 reps) and scaling strength-per-rep with the machine's weight tier, rather than requiring more reps at higher islands.
-  - **Jumping itself also grants a secondary strength trickle** (smaller than dedicated gym training), weighted by jump quality so perfect jumps grant more than weak ones — climbing contributes to progress without making the gym redundant.
+- **Training** (skill, free, repeatable): a **high-gravity training area** on each island where players raise a "Leg Level" stat by doing the one thing the game is already about — jumping. No gym, no machines, no separate verb to learn: training is jumping under resistance.
+  - **The resistance is local gravity.** Inside a training area, gravity is simulated higher than the rest of the world, so jumps are shorter, heavier, and slower to recover from. Each completed jump inside the area grants Leg Level, scaled by how heavy that area's gravity is.
+  - **The starting island's area is a sand pit** — loose sand that swallows the push-off (as it does in real life), the game's gentlest resistance and the tutorial for the whole mechanic. It reads visually as "this is where jumping is hard" before the player has any numbers to interpret.
+  - **Gravity scales with altitude.** Low islands add only a small amount over normal; higher islands stack it far more aggressively. So training is gated behind having climbed there first, not just behind currency, and each area's gravity doubles as its Leg Level cap band.
+  - **Each area's gravity is tuned against the strength a player is expected to have when they arrive, so a training jump looks and feels roughly the same height at every altitude.** This is the point of the whole system: the training area is a treadmill that always feels like effort, because your growing legs are cancelled out the moment you step into it. The payoff is visible *outside* the pit — same legs, normal gravity, much bigger arc. It also means heavy gravity can never become unfun-sluggish at the top, since nobody experiences the top island's gravity with bottom island legs.
+  - Because heavier gravity grants more Leg Level per jump, a player who has climbed higher trains faster — the reward for pushing your altitude is that everything below it becomes cheap.
+  - Pacing target: each island should take roughly the same 3-5 minutes of active training to reach the next island's strength threshold. Achieved by keeping the jump count needed roughly constant per island (~40-60 training jumps) and scaling strength-per-jump with the area's gravity tier, rather than demanding more jumps at higher islands.
+  - Same server-authority principle as the jump bar: the server owns which area a player is standing in, what gravity multiplier applies, and whether a training jump actually completed (left the ground, landed inside the area) — never a client-reported count or multiplier. A client that claims it's in the top island's pit while standing in the sand pit is the obvious exploit to close.
+  - Implementation note (Roblox): `Workspace.Gravity` is global, so per-area gravity has to be faked per character — a downward `VectorForce`/`LinearVelocity` on the humanoid root plus a reduced `JumpPower` while inside the zone — applied server-side, cleared on exit and on death.
+  - **Climbing jumps (outside a training area) also grant a secondary strength trickle**, weighted by jump quality so perfect jumps grant more than weak ones. It's smaller per jump than a training-area jump — normal gravity is the easy setting — so climbing contributes to progress without making the training areas redundant.
   - **Legs visibly grow (bulk up) as Leg Level rises**, then reset to baseline size when the player upgrades their Leg Tier (gear). This makes visible size a live status signal within a tier — since the game is a shared world where players see each other, a visibly bulked-up player reads as "close to their next gear upgrade" — and makes the upgrade decision feel like a real trade: you cash in your visible progress for a higher power ceiling.
 - **Upgrading** (currency-bought gear tiers: cardboard → springs → pistons → rockets, etc.): raises base jump height/distance, and can unlock perks — double jump, fall-damage resist, air dash.
 - Effective jump stat = Leg Level (skill) × Leg Tier (gear), so neither pure grinding nor pure paying maxes a player out alone.
 
 ## World structure
 
-- Players start on a main island with basic gym equipment. Low islands beyond it are close together and forgiving; higher up, clouds get progressively sparser, gating progress behind both stat upgrades and player skill.
-- **Clouds reposition (X/Z) roughly every 30 minutes.** This is the game's "the world changes under you" hook. A reposition for a given level (the band of clouds between two islands) only fires if no player is currently in that level — so nobody gets stranded or repositioned out from under mid-climb. Fixed islands with gyms don't move, only the connecting clouds do. If a level stays occupied for a full hour, the server forces a reposition anyway (see below) rather than letting one player block it forever.
+- Players start on a main island with the sand pit — the game's lightest training area. Low islands beyond it are close together and forgiving; higher up, clouds get progressively sparser and training-area gravity gets heavier, gating progress behind both stat upgrades and player skill.
+- **Clouds reposition (X/Z) roughly every 30 minutes.** This is the game's "the world changes under you" hook. A reposition for a given level (the band of clouds between two islands) only fires if no player is currently in that level — so nobody gets stranded or repositioned out from under mid-climb. Fixed islands with training areas don't move, only the connecting clouds do. If a level stays occupied for a full hour, the server forces a reposition anyway (see below) rather than letting one player block it forever.
 - Checkpoints: on reaching a new cloud/island, it becomes the respawn point. Falling sends the player back to their last checkpoint, not to the ground. No fall damage — a miss costs progress (back to checkpoint), not health.
-- **Fast travel**: free and instant, once a player has physically landed on an island. This means the climb only has to be earned once per island — teleporting is for returning to train at a gym you've already unlocked or for retrying the climb from a high point, not a way to skip the jump challenge itself (you still have to physically reach an island the first time).
+- **No fast travel.** There is no teleport back to a previously-landed island — every return trip, including going back down to retrain at a lower island's training area, is a real physical climb. This makes altitude genuinely hard-won (you can't cheaply revisit it), but it also puts a real time-cost on the free Training track that didn't exist before — see open questions.
 
 ## Visual style reference
 
@@ -45,36 +48,44 @@ Roblox game: a vertical climbing game where the only way up is a timing-based ju
 - **Visible facets, not smooth shading** — geometry reads as flat-shaded low-poly planes (trees, rocks, clouds, terrain), not sculpted/high-poly or painted-texture smooth.
 - **Saturated but soft palette** — bright, cheerful colors (turquoise water, green foliage, pastel sky) rather than gritty/realistic tones; shading is soft gradient blocks, not harsh contrast.
 - **Chunky, rounded silhouettes** — foliage and rock formations are blobby/rounded clusters of low-poly facets, not sharp/angular or spindly.
-- **Warm wood + whimsical nature props** for built structures and set dressing: docks, benches, crates, lanterns, mushrooms, flowers, bunting flags — this is the palette to draw island/gym set-dressing props from.
+- **Warm wood + whimsical nature props** for built structures and set dressing: docks, benches, crates, lanterns, mushrooms, flowers, bunting flags — this is the palette to draw island and training-area set-dressing props from.
+- **Training areas must read as heavy at a glance**, before any UI explains them: the starting island's sand pit is pale loose sand with a wooden rim and scattered footprint dents; higher islands escalate the same idea (denser, darker, more compressed ground, heavier framing, sagging/strained props around the rim). The visual weight of the ground is the player's cue for how much gravity is waiting in it.
 - **Clouds and floating islands** follow the same faceted-low-poly language as the ground-level references, just recolored for sky (white/pale-blue-grey clouds, warm brown/tan rock islands), with soft bloom around light sources.
 
-**UI/HUD layout reference (functional convention only, not art style).** A separate reference image shows a typical Roblox simulator/tycoon HUD: stacked resource counters top-left, each with an icon and a `+` button (e.g. gems, a leveled stat bar, multiple currencies), and a vertical column of action buttons top-right/side (Settings, Help, Codes, Invite, Upgrade, Sell, Packs, Pets, Trade). That reference game's actual theme/art (anime effects, ninja icons) doesn't apply here — only the layout convention does. For Leg Day, adapt the same structure: a compact top-left stack for currency + Leg Level/current altitude, and a right-side vertical rail for menu actions (Upgrade legs, Fast Travel list, Leaderboard, Settings), styled in the low-poly/pastel palette above rather than the reference's anime look.
+**UI/HUD layout reference (functional convention only, not art style).** A separate reference image shows a typical Roblox simulator/tycoon HUD: stacked resource counters top-left, each with an icon and a `+` button (e.g. gems, a leveled stat bar, multiple currencies), and a vertical column of action buttons top-right/side (Settings, Help, Codes, Invite, Upgrade, Sell, Packs, Pets, Trade). That reference game's actual theme/art (anime effects, ninja icons) doesn't apply here — only the layout convention does. For Leg Day, adapt the same structure: a compact top-left stack for both currencies (Medals, Coins) + Leg Level/current altitude, and a right-side vertical rail for menu actions (Upgrade legs, Pets, Auras, Leaderboard, Settings), styled in the low-poly/pastel palette above rather than the reference's anime look.
 
 ## Progression & currency
 
-- Currency sources: passive trickle for climbing, plus a one-time bonus the first time a player reaches a new altitude band (encourages pushing your personal best, not just farming a comfortable low floor).
+Two currencies, kept deliberately separate so power and vanity never compete for the same wallet:
+
+- **Medals — spent on Leg Tier upgrades (gear/power).** Earned by reaching an island for the first time (a one-time award) plus collectibles scattered on that island while you're there; the higher/farther the island, the more medals it's worth. Medals are scarce and altitude-gated by design — you can't grind them in place, only by climbing further than you have before. This keeps the game's one power-currency tied directly to the skill-based climb, the same hook the jump bar itself is built on.
+- **Coins — spent on pets and auras (cosmetics only, no stat effect).** A continuous per-jump trickle, earned from any jump anywhere, not altitude-gated. Coins are abundant and farmable by playing a lot, which is exactly right for a vanity sink — a bot or a grinder inflating their coin total only buys flair, never power.
 - Leaderboard for max height reached — cheap, strong retention hook for the genre.
 
 ## Monetization (proposed, not settled)
 
-- Cosmetic leg skins: fine, no gameplay impact.
+- Cosmetic leg skins, pets, and auras: fine, no gameplay impact. Since pets/auras are the deep, ever-expandable side of the economy (new pets, new aura rarities, duplicates), they're also the coin sink that's meant to keep absorbing the currency's unbounded, playtime-driven supply — don't let this catalog ship shallow, or coins pile up with nowhere to go.
 - Gamepasses that affect jump power: risky — undercuts the skill-based hook of the whole game if players can pay past the timing mechanic. Lean toward monetizing training speed (e.g. a "double training XP" pass) rather than raw power, so payment saves time but doesn't replace skill.
+- A direct real-money Medal purchase is the highest-risk gamepass to ever consider: Medals buy Leg Tier (power), so selling them directly would let players pay past the climb itself, not just past the jump-bar timing. If Medals are ever monetized, do it indirectly (e.g. a small bonus-medal pass tied to reaching a *new* personal-best altitude, never a flat currency purchase).
 
 ## Decisions that are settled — don't relitigate without discussing first
 
 - Jump quality is judged server-side from input timing, never trusted from the client.
 - Falling returns the player to their last checkpoint, not to the ground.
 - Two separate progression tracks (skill-based training, currency-based upgrading) rather than one.
-- Training happens at gyms located on islands, not on a separate ground-level course. Weights (and the Leg Level cap they unlock) get heavier at higher islands.
-- Training is click-based: clicking faster multiplies gains, capped at 2x.
-- Players start on a main island with basic equipment.
-- Fast travel to any previously-landed island is free and instant; this doesn't bypass the jump challenge for reaching it the first time.
+- Training happens in high-gravity training areas located on islands, not on a separate ground-level course. Training is jumping under increased simulated gravity — there is no gym, no weight machines, and no click-to-do-reps mechanic.
+- Gravity (and the Leg Level cap it unlocks) scales with altitude: small increases on low islands, much larger ones higher up.
+- Training-area gravity is tuned against expected leg strength at that altitude, so training jumps stay roughly the same height everywhere. The area always feels like effort; the strength gain shows up outside it, under normal gravity.
+- The starting island's training area is a sand pit — the lightest resistance in the game and the tutorial for the mechanic.
+- Players start on a main island with the sand pit.
+- No fast travel. Every return trip, including retraining at a lower island, is a physical climb.
+- Two currencies, split by purpose: Medals (earned by first-time island arrival + on-island collectibles, more the higher you go) spend on Leg Tier upgrades only; Coins (continuous per-jump trickle) spend on pets and auras only. Power and cosmetics never share a wallet.
 - A cloud level only repositions when no player is currently in it; islands themselves never move. Exception: if a level has stayed occupied for a full hour (someone parked in it blocking the reshuffle), the server forces it anyway — a 15-second warning fires, then the new cloud set fades in while the old set fades out, with both sets solid/collidable during the overlap so nobody falls through the transition, before the old set fully disappears.
 - No fall damage. Missing a jump costs a return trip to the last checkpoint, not health.
 - **Cooperative, not competitive.** No racing/PvP framing — but it's a shared world: players can see each other climbing, training, and jumping, even though there's no head-to-head win condition.
 - Servers are capped at 16 players, with 32 as a stretch target — worth raising if a prototype shows no major performance hit, but 16 is the safe baseline to ship with if it doesn't. Overflow beyond the cap routes players to a new server instance (standard Roblox behavior), not a queue.
 - If a new player enters a level during its forced-reposition warning or fade transition, they're caught in the swap along with everyone already there.
-- Click-training: gains scale with click speed up to 5 clicks/sec, at which point the player is locked at the 2x multiplier (going faster than 5 cps grants nothing further). There's a 2-second charge-up before the multiplier kicks in, so a rep needs sustained clicking, not a single burst.
+- Training gains scale with the training area's gravity tier, so climbing higher makes training faster — not with input speed. The server decides which area a player is in and whether a training jump completed.
 - The 1-hour occupied-timer for a stuck level resets instantly if the level becomes fully empty (all players leave); it only keeps counting up while at least one player remains in it continuously.
 - Legs visibly bulk up as Leg Level rises, and reset to baseline size on Leg Tier upgrade.
 - Jump takeoffs get progressively more superhero-style (crouch wind-up, crater/shockwave, dust) as strength rises. Cosmetic only — doesn't affect jump quality or arc.
@@ -82,10 +93,14 @@ Roblox game: a vertical climbing game where the only way up is a timing-based ju
 
 ## Open questions (need a prototype, not more design docs)
 
-- **Exact rep count and per-island weight scaling**: the ~40-60 rep / 3-5 min target is a design goal, not a tuned number — needs actual playtesting to land the weight-per-rep curve and confirm the pacing holds up in practice.
-- **Jump-strength trickle balance**: how much strength should a perfect jump grant relative to a full gym rep, so climbing feels rewarding without letting players skip the gym entirely by just climbing more?
+- **How does a player retrain after climbing higher, now that fast travel is gone?** Every retrain at a lower island's training area costs a real re-climb, which risks turning the free Training track into a time-tax rather than a skill-based one. Needs a decision: is the re-climb itself acceptable friction (it does double as skill practice), or does it need a narrow, training-scoped fix — e.g. a limited "return to last checkpoint" recall, distinct from general fast travel — so retraining doesn't become the same tedium fast travel was removed to avoid elsewhere?
+- **Does removing fast travel create backtracking chokepoints?** Players funneled repeatedly through the same low islands to retrain or re-climb could turn training-area entrances and narrow ledges into griefing/blocking spots in the shared, collision-enabled world — worth a look once there's a prototype with more than one player in it.
+- **Exact gravity curve per island**: since gravity tracks expected leg strength, the real question is how tightly it tracks — whether it's a straight formula off the island's Leg Level band (so training height is near-identical everywhere) or deliberately runs slightly ahead of it, so each new area feels heavy for a few jumps before you settle in. The second is more interesting but needs a feel test.
+- **What happens to an under-levelled player in a high area?** Gravity is tuned for the strength you're *supposed* to have on arrival, so someone who fast-travels or gets carried past their training will find that pit disproportionately brutal. Is that a fine, self-correcting "go train lower first" signal, or does it need a floor on air-time so the area is never unusable?
+- **Exact training-jump count and strength-per-jump scaling**: the ~40-60 jump / 3-5 min target is a design goal, not a tuned number — needs playtesting to land the curve and confirm the pacing holds.
+- **Jump-strength trickle balance**: how much strength should a perfect climbing jump grant relative to a training-area jump, so climbing feels rewarding without letting players skip training entirely by just climbing more?
 - **Leg-growth and takeoff-effect tiers**: how many visible size/effect stages per Leg Tier (continuous scaling vs. a handful of discrete stages), and whether the reset-on-upgrade should be instant or a small "shrink" animation/moment of its own — needs an art/animation pass, not just a design call.
-- **16 vs. 32 player cap**: needs an actual server-performance prototype (client physics/rendering load with that many players jumping and clicking at once) to decide which one ships.
+- **16 vs. 32 player cap**: needs an actual server-performance prototype (client physics/rendering load with that many players jumping at once, including several running custom per-character gravity forces in training areas) to decide which one ships.
 
 ## Working together
 
