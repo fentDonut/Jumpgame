@@ -34,7 +34,10 @@ Roblox game: a vertical climbing game where the only way up is a timing-based ju
   - Implementation note (Roblox): `Workspace.Gravity` is global, so per-area gravity has to be faked per character — a downward `VectorForce`/`LinearVelocity` on the humanoid root plus a reduced `JumpPower` while inside the zone — applied server-side, cleared on exit and on death.
   - **Climbing jumps (outside a training area) also grant a secondary strength trickle**, weighted by jump quality so perfect jumps grant more than weak ones. It's smaller per jump than a training-area jump — normal gravity is the easy setting — so climbing contributes to progress without making the training areas redundant.
   - **Legs visibly grow (bulk up) as Leg Level rises**, then reset to baseline size when the player upgrades their Leg Tier (gear). This makes visible size a live status signal within a tier — since the game is a shared world where players see each other, a visibly bulked-up player reads as "close to their next gear upgrade" — and makes the upgrade decision feel like a real trade: you cash in your visible progress for a higher power ceiling.
-- **Upgrading** (currency-bought gear tiers: cardboard → springs → pistons → rockets, etc.): raises base jump height/distance, and can unlock perks — double jump, fall-damage resist, air dash.
+- **Upgrading** (currency-bought gear tiers): raises base jump height/distance, and can unlock perks — double jump, fall-damage resist, air dash.
+  - **Ten tiers, one per island** — every island you reach unlocks its own tier, sold by a vendor on that island. Junk → mechanical → powered → sci-fi: bare legs, cardboard braces, duct-tape wraps, wooden stilts, coil springs, shock absorbers, hydraulic pistons, turbine calves, rocket boosters, antigrav struts.
+  - A tier per island means gear and training each contribute one step per island, so the power curve is smooth. Fewer, larger tiers made it a sawtooth — an island carried by a purchase, then an island carried only by grinding.
+  - Each tier costs about three cash-out runs, so arriving somewhere new always sets up a concrete, nearby goal.
 - Effective jump stat = Leg Level (skill) × Leg Tier (gear), so neither pure grinding nor pure paying maxes a player out alone.
 
 ## World structure
@@ -91,6 +94,7 @@ Two currencies, kept deliberately separate so power and vanity never compete for
 - Medals are earned by **cashing out a run**: one voluntary medal cache per island, collecting it teleports you to the bottom, so a Leg Tier costs several full climbs. Higher caches pay more. Plus a one-time arrival bonus per island.
 - Cashing out **resets the checkpoint chain to the bottom**. Arriving on an island never auto-triggers the cache, and collecting takes a deliberate confirm rather than a touch.
 - Coins are earned **per jump, scaled by the height of that jump** — not by altitude or island. Training-pit jumps are deliberately low, so training is the worst coin rate in the game and never improves.
+- **Ten Leg Tiers, one unlocked per island**, each costing roughly three cash-out runs.
 - A cloud level only repositions when no player is currently in it; islands themselves never move. Exception: if a level has stayed occupied for a full hour (someone parked in it blocking the reshuffle), the server forces it anyway — a 15-second warning fires, then the new cloud set fades in while the old set fades out, with both sets solid/collidable during the overlap so nobody falls through the transition, before the old set fully disappears.
 - No fall damage. Missing a jump costs a return trip to the last checkpoint, not health.
 - **Cooperative, not competitive.** No racing/PvP framing — but it's a shared world: players can see each other climbing, training, and jumping, even though there's no head-to-head win condition.

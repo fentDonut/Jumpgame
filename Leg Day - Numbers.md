@@ -8,7 +8,7 @@ All numbers are a first pass calibrated against real Roblox physics and shipped-
 
 ## 0. The two loops these numbers serve
 
-**Medals — the run loop.** Each island holds a **medal cache**. Touching it banks the medals *and teleports you to the bottom*, clearing your checkpoint chain. One cache per run, so every run is a single decision: **how high do I dare climb before cashing out?** Higher caches are worth more per minute, so the ceiling of your legs sets your earn rate. A Leg Tier costs several full round trips.
+**Medals — the run loop.** Each island holds a **medal cache**. Touching it banks the medals *and teleports you to the bottom*, clearing your checkpoint chain. One cache per run, so every run is a single decision: **how high do I dare climb before cashing out?** Higher caches are worth more per minute, so the ceiling of your legs sets your earn rate. Each Leg Tier costs about three full round trips.
 
 **Coins — the height loop.** Every jump pays, and the payout scales with **how high that jump peaked**. Not with altitude, not with the island you're on — with the arc itself. Stronger legs and better timing both raise the arc, so both raise income. Training jumps are deliberately tiny (§4.3), so the pit is the *worst* coin rate in the game.
 
@@ -48,38 +48,45 @@ hrp.AssemblyLinearVelocity = hrp.CFrame.LookVector * Vx + Vector3.new(0, Vy, 0)
 
 Derived arc (gravity 196.2):
 
-| Quantity | Formula | S=1.00 | S=2.755 (max) |
+| Quantity | Formula | S=1.00 | S=2.75 (max) |
 |---|---|---|---|
 | Airtime (flat) | `2·Vy / g` | 0.54 s | 1.49 s |
-| **Peak height** | `Vy² / 2g` = `7.2·S²` | 7.2 studs | 54.6 studs |
-| Flat reach | `Vx · airtime` = `11.9·S²` | 11.9 studs | 90.3 studs |
-| **Rising reach** (see §7.1) | `0.835 × flat` = `9.94·S²` | 9.9 studs | 75.4 studs |
+| **Peak height** | `Vy² / 2g` = `7.2·S²` | 7.2 studs | 54.3 studs |
+| Flat reach | `Vx · airtime` = `11.9·S²` | 11.9 studs | 89.8 studs |
+| **Rising reach** (see §7.1) | `0.835 × flat` = `9.94·S²` | 9.9 studs | 75.0 studs |
 
 S=1 giving an 11.9-stud flat reach lands inside the measured 10–12 stud vanilla range — the model is anchored to reality, not invented.
 
 Distance and height both scale with **S²**, so power feels superlinear: doubling S nearly quadruples your reach. Coins scale with height *squared* (§6), so they scale with **S⁴** — the same upgrade that doubles your reach multiplies your income sixteenfold. That's the whole "superhero legs" payoff, and it's why the power number itself can stay small.
 
-**Full range: S = 1.00 → 2.755.** Deliberately small and readable. All number inflation lives in Coins.
+**Full range: S = 1.00 → 2.75.** Deliberately small and readable. All number inflation lives in Coins.
 
-### 2.1 Tier multipliers (Medals buy these)
+### 2.1 Tier multipliers — ten tiers, one per island
 
-| # | Leg Tier | TierMult | Bought around |
+Every island unlocks its own tier, so gear is a milestone you hit on arrival rather than a rare event. ×1.053 per tier, spanning **1.00 → 1.60**.
+
+| # | Leg Tier | TierMult | Unlocks at |
 |---|---|---|---|
-| 1 | Bare Legs | 1.00 | spawn |
-| 2 | Cardboard Braces | 1.10 | Island 2–3 |
-| 3 | Spring Boots | 1.21 | Island 4–5 |
-| 4 | Piston Legs | 1.32 | Island 6–7 |
-| 5 | Rocket Legs | 1.45 | Island 8–9 |
+| 1 | Bare Legs | 1.000 | spawn |
+| 2 | Cardboard Braces | 1.053 | Island 2 |
+| 3 | Duct-Tape Wraps | 1.110 | Island 3 |
+| 4 | Wooden Stilts | 1.169 | Island 4 |
+| 5 | Coil Springs | 1.231 | Island 5 |
+| 6 | Shock Absorbers | 1.297 | Island 6 |
+| 7 | Hydraulic Pistons | 1.366 | Island 7 |
+| 8 | Turbine Calves | 1.439 | Island 8 |
+| 9 | Rocket Boosters | 1.516 | Island 9 |
+| 10 | Antigrav Struts | 1.597 | Island 10 |
 
-≈ ×1.10 per tier. Modest on purpose: gear is the *smaller* half of the product so training can't be bypassed by a wallet.
+Junk → mechanical → powered → sci-fi, so the silhouette escalates visibly across the climb.
 
 ### 2.2 Level multiplier (Training earns this)
 
 ```
-LevelMult = 1 + 0.90 × (LegLevel / 1700)      -- 1.00 at L0, 1.90 at L1700 (cap of arc 1)
+LevelMult = 1 + 0.72 × (LegLevel / 17000)     -- 1.00 at L0, 1.72 at L17000 (cap of arc 1)
 ```
 
-Training carries **1.90×** of the total 2.755×, gear carries **1.45×**. Skill track dominates, as designed.
+Training carries **1.72×** of the total 2.75×, gear carries **1.60×**. Training still edges ahead, so neither track alone maxes you out ✓ — but with a tier every island the two are now much closer to equal partners than they were at five tiers.
 
 ### 2.3 Jump-bar quality multipliers
 
@@ -92,6 +99,23 @@ Training carries **1.90×** of the total 2.755×, gear carries **1.45×**. Skill
 | Miss (no lock-in) | 0.45 | 20% | 4% |
 
 Note the coin column falls off a cliff — that's automatic, not a separate rule. One formula makes timing matter for reach *and* wallet.
+
+### 2.4 The resulting power curve
+
+| Level | Tier held | Leg Level | **S** | Peak height | Rising reach |
+|---|---|---|---|---|---|
+| 1 → 2 | 1 | 500 | 1.02 | 7.5 | 10.4 |
+| 2 → 3 | 2 | 1,200 | 1.11 | 8.8 | 12.2 |
+| 3 → 4 | 3 | 2,000 | 1.20 | 10.4 | 14.4 |
+| 4 → 5 | 4 | 3,000 | 1.32 | 12.5 | 17.3 |
+| 5 → 6 | 5 | 4,250 | 1.45 | 15.2 | 21.0 |
+| 6 → 7 | 6 | 5,750 | 1.61 | 18.7 | 25.9 |
+| 7 → 8 | 7 | 7,750 | 1.81 | 23.7 | 32.7 |
+| 8 → 9 | 8 | 10,000 | 2.05 | 30.2 | 41.7 |
+| 9 → 10 | 9 | 13,000 | 2.35 | 39.8 | 54.9 |
+| 10 → summit | 10 | 17,000 | 2.75 | 54.3 | 75.0 |
+
+**This curve is smooth, and that's the real win of ten tiers.** At five tiers, gear arrived every other island and the S curve had visible steps at levels 3, 5, 7 and 9 — an island where a purchase carried you, then an island where only grinding did. A tier per island removes the sawtooth entirely: every island contributes one gear step *and* one training band, so progress reads as continuous.
 
 ---
 
@@ -127,7 +151,7 @@ Zones, as half-width fraction from centre on a bar normalised to [−1, +1]:
 | Reject attempt if | player RTT > 400 ms (fall back to auto-Good, don't punish lag) |
 | Client never sends | accuracy, zone name, resulting S, or **coin amount** — only "I pressed, now" |
 
-Coins are now derived from jump height, which is derived from S, which is derived from timing — so a client that could report its own coins could mint currency. Server computes the payout.
+Coins are derived from jump height, which is derived from S, which is derived from timing — so a client that could report its own coins could mint currency. Server computes the payout.
 
 ### 3.2 Combo
 
@@ -149,16 +173,16 @@ Design target is **~50 training jumps ≈ 3–5 min per island**. Held constant 
 
 | Island | Pit gain / jump | Band width | Leg Level to leave |
 |---|---|---|---|
-| 1 (Sand Pit) | 1.0 | 50 | 50 |
-| 2 | 1.4 | 70 | 120 |
-| 3 | 1.6 | 80 | 200 |
-| 4 | 2.0 | 100 | 300 |
-| 5 | 2.5 | 125 | 425 |
-| 6 | 3.0 | 150 | 575 |
-| 7 | 4.0 | 200 | 775 |
-| 8 | 4.5 | 225 | 1000 |
-| 9 | 6.0 | 300 | 1300 |
-| 10 | 8.0 | 400 | **1700** (arc 1 cap) |
+| 1 (Sand Pit) | 10 | 500 | 500 |
+| 2 | 14 | 700 | 1,200 |
+| 3 | 16 | 800 | 2,000 |
+| 4 | 20 | 1,000 | 3,000 |
+| 5 | 25 | 1,250 | 4,250 |
+| 6 | 30 | 1,500 | 5,750 |
+| 7 | 40 | 2,000 | 7,750 |
+| 8 | 45 | 2,250 | 10,000 |
+| 9 | 60 | 3,000 | 13,000 |
+| 10 | 80 | 4,000 | **17,000** (arc 1 cap) |
 
 **500 training jumps total** across the arc, 50 per island exactly. Because every medal run passes every pit below your cash-out point, training and medal-farming happen on the same trip — you top up each band in passing rather than making dedicated training journeys.
 
@@ -186,19 +210,19 @@ g_pit = 196.2 × (7.2 · S_expected²) / 4.5    →   gravityMult = 1.60 × S_ex
 | Island | Pit | S on arrival | Gravity × | Effective g |
 |---|---|---|---|---|
 | 1 | Sand Pit | 1.00 | **1.6** | 314 |
-| 2 | Packed Earth | 1.03 | **1.7** | 334 |
-| 3 | Gravel Bed | 1.06 | **1.8** | 353 |
-| 4 | Clay Flat | 1.22 | **2.4** | 471 |
-| 5 | Iron Sand | 1.28 | **2.6** | 510 |
-| 6 | Basalt Pan | 1.48 | **3.5** | 687 |
-| 7 | Slag Bed | 1.58 | **4.0** | 785 |
-| 8 | Leadfield | 1.86 | **5.5** | 1079 |
-| 9 | Deep Well | 2.02 | **6.5** | 1275 |
-| 10 | Coreground | 2.45 | **9.6** | 1883 |
+| 2 | Packed Earth | 1.02 | **1.7** | 334 |
+| 3 | Gravel Bed | 1.11 | **2.0** | 392 |
+| 4 | Clay Flat | 1.20 | **2.3** | 451 |
+| 5 | Iron Sand | 1.32 | **2.8** | 549 |
+| 6 | Basalt Pan | 1.45 | **3.4** | 667 |
+| 7 | Slag Bed | 1.61 | **4.2** | 824 |
+| 8 | Leadfield | 1.81 | **5.3** | 1040 |
+| 9 | Deep Well | 2.05 | **6.7** | 1315 |
+| 10 | Coreground | 2.35 | **8.8** | 1726 |
 
-Small increases low down, aggressive escalation high up ✓ (matches the settled decision).
+Small increases low down, aggressive escalation high up ✓ (matches the settled decision) — and now a smooth ramp rather than the stepped one the five-tier curve produced.
 
-The constant 4.5-stud pit height is now doing double duty: it also fixes the pit's coin rate at **61 coins/jump forever** (§6), which is what makes training a deliberate coin desert.
+The constant 4.5-stud pit height is doing double duty: it also fixes the pit's coin rate at **608 coins/jump forever** (§6), which is what makes training a deliberate coin desert.
 
 **[answers OQ: does gravity run ahead of expected strength?]** — Ship it running **+8% ahead** of the table for a player's **first 15 jumps** in a newly unlocked pit, then relax to the table value. New areas feel heavy for about a minute, then you settle in. One boolean and one float to revert.
 
@@ -234,9 +258,9 @@ qualityWeight: Perfect 1.0 | Good 0.7 | Okay 0.4 | Weak 0.15 | Miss 0
 
 | Full climb to | Island 6 | Summit |
 |---|---|---|
-| Leg Level from the climb | ~12 | ~64 |
+| Leg Level from the climb | ~120 | ~640 |
 
-A summit run grants 3.8% of the whole 1700-point track. Across the ~22 runs a full playthrough needs, climbing supplies **roughly 10–15% of total Leg Level** — meaningful, never sufficient. This is the number to move first if training feels like a chore.
+A summit run grants 3.8% of the whole 17,000-point track. Across the ~28 runs a full playthrough needs, climbing supplies **roughly 10–15% of total Leg Level** — meaningful, never sufficient. This is the number to move first if training feels like a chore.
 
 ---
 
@@ -257,9 +281,7 @@ A summit run grants 3.8% of the whole 1700-point track. Across the ~22 runs a fu
 | On collect | **checkpoint chain resets to Island 1** |
 | First-arrival bonus | one-time per island, automatic, **does not teleport** |
 
-The voluntary-interaction and no-teleport-on-arrival rules are load-bearing: without them, pushing to a new personal best would punish you by ejecting you the moment you landed, and the risk/reward decision would evaporate.
-
-The checkpoint reset is equally load-bearing — see §5.5.
+The voluntary-interaction and no-teleport-on-arrival rules are load-bearing: without them, pushing to a new personal best would punish you the moment you landed, and the risk/reward decision would evaporate. The checkpoint reset is equally load-bearing — see §5.5.
 
 ### 5.2 Cache values and run economics
 
@@ -267,42 +289,45 @@ Effective hop time is **5.6 s** (4.5 s cycle + ~25% miss overhead).
 
 | Cash out at | Hops from bottom | Run time | Cache | **Medals/min** |
 |---|---|---|---|---|
-| Island 2 | 10 | 0.9 min | **2** | 2.15 |
-| Island 3 | 21 | 2.0 min | **5** | 2.55 |
-| Island 4 | 33 | 3.1 min | **8** | 2.60 |
-| Island 5 | 46 | 4.3 min | **13** | 3.03 |
-| Island 6 | 60 | 5.6 min | **20** | 3.57 |
-| Island 7 | 75 | 7.0 min | **28** | 4.00 |
-| Island 8 | 91 | 8.5 min | **40** | 4.71 |
-| Island 9 | 108 | 10.1 min | **55** | 5.46 |
-| Island 10 | 126 | 11.8 min | **75** | 6.38 |
+| Island 2 | 10 | 0.9 min | **20** | 21.5 |
+| Island 3 | 21 | 2.0 min | **50** | 25.5 |
+| Island 4 | 33 | 3.1 min | **80** | 26.0 |
+| Island 5 | 46 | 4.3 min | **130** | 30.3 |
+| Island 6 | 60 | 5.6 min | **200** | 35.7 |
+| Island 7 | 75 | 7.0 min | **280** | 40.0 |
+| Island 8 | 91 | 8.5 min | **400** | 47.1 |
+| Island 9 | 108 | 10.1 min | **550** | 54.6 |
+| Island 10 | 126 | 11.8 min | **750** | 63.8 |
 
 Rate rises monotonically, ~3× from bottom to top. Climbing higher is always strictly better per minute — but never *so* much better that being capped at island 6 for a while feels pointless.
 
 ### 5.3 First-arrival bonuses
 
-One-time, ≈ 3× that island's cache, so a new personal best is worth about three farm runs — a real burst that funds the next tier and rewards pushing over grinding.
+One-time, ≈ 3× that island's cache, so a new personal best is worth about three farm runs — a real burst that funds that island's tier and rewards pushing over grinding.
 
 | Island | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
 |---|---|---|---|---|---|---|---|---|---|
-| Bonus | 6 | 15 | 24 | 40 | 60 | 85 | 120 | 165 | 225 |
-
-Total from discovery: **740 medals.**
+| Bonus | 50 | 150 | 240 | 400 | 600 | 850 | 1,200 | 1,650 | 2,250 |
 
 ### 5.4 Tier costs
 
-Priced in *runs*, since that's the real currency now. Target: 4–7 grind runs per tier after the arrival bonuses are spent.
+One clean rule: **each tier costs exactly 2× its island's arrival bonus**, which lands at ~3 cache runs every time.
 
-| Purchase | Cost | Bought around | Grind runs needed | ≈ Time |
+| Tier | Island | Cost | Grind runs | ≈ Time |
 |---|---|---|---|---|
-| Cardboard Braces | **40** | Island 2–3 | 4 | 8 min |
-| Spring Boots | **110** | Island 4–5 | 5 | 21 min |
-| Piston Legs | **260** | Island 6–7 | 6 | 45 min |
-| Rocket Legs | **450** | Island 8–9 | 6 | 63 min |
+| 2 Cardboard Braces | 2 | **100** | 3 | 3 min |
+| 3 Duct-Tape Wraps | 3 | **300** | 3 | 6 min |
+| 4 Wooden Stilts | 4 | **480** | 3 | 9 min |
+| 5 Coil Springs | 5 | **800** | 3 | 13 min |
+| 6 Shock Absorbers | 6 | **1,200** | 3 | 17 min |
+| 7 Hydraulic Pistons | 7 | **1,700** | 4 | 28 min |
+| 8 Turbine Calves | 8 | **2,400** | 3 | 26 min |
+| 9 Rocket Boosters | 9 | **3,300** | 3 | 30 min |
+| 10 Antigrav Struts | 10 | **4,500** | 3 | 35 min |
 
-Ratios flatten (×2.75, ×2.36, ×1.73) because the earn *rate* accelerates — flat ratios would make the last tier a wall. **~22 grind runs, ~2 h 20 m of medal farming** across the arc.
+**~28 grind runs, ~2 h 47 m of medal farming** across the arc — up from 5 tiers' 22 runs, so ten tiers costs about 30 extra minutes of play in exchange for a milestone on every island instead of every other one.
 
-Medals stay in three digits all game. **This is a deliberate rejection of the Ninja Legends pattern** (rank 45 costs 5.6 septendecillion): a currency you can't grind in place doesn't need inflation to stay interesting, and small numbers keep "is this tier worth six more climbs?" a legible question.
+Medals top out in the low thousands. This is still a deliberate rejection of the Ninja Legends pattern (rank 45 costs 5.6 septendecillion): a currency you can't grind in place doesn't need inflation to stay interesting, and keeping "is this tier worth three more climbs?" a legible question matters more than a big number.
 
 ### 5.5 Why the checkpoint reset is non-negotiable
 
@@ -325,21 +350,21 @@ The trade is that **the backtracking chokepoint question gets sharper, not softe
 **Coins are paid per jump, scaled by how high that jump peaked.** One formula, no altitude term, no island multiplier:
 
 ```
-Coins = 3 × (peakHeight in studs)² × comboMult
+Coins = 30 × (peakHeight in studs)² × comboMult
 ```
 
 Since peak height = `7.2·S²`, coins scale with **S⁴**. Quality is already inside S, so bad timing is punished automatically (§2.3) with no separate rule.
 
 | Jump | Peak height | Coins (no combo) |
 |---|---|---|
-| Vanilla legs, Perfect | 7.6 | **173** |
-| Vanilla legs, Weak | 3.2 | **31** |
-| Island 5 legs, Perfect | 15.8 | **749** |
-| Island 10 legs, Perfect | 54.6 | **8,944** |
-| Island 10 legs, Perfect, ×3 combo | 54.6 | **26,832** |
-| **Any training-pit jump, any island** | 4.5 | **61** |
+| Vanilla legs, Perfect | 7.5 | **1,688** |
+| Vanilla legs, Weak | 3.2 | **307** |
+| Island 5 legs, Perfect | 15.2 | **6,931** |
+| Island 10 legs, Perfect | 54.3 | **88,450** |
+| Island 10 legs, Perfect, ×3 combo | 54.3 | **265,350** |
+| **Any training-pit jump, any island** | 4.5 | **608** |
 
-That last row is the point. Pit height is pinned at 4.5 studs by design (§4.3), so training pays **61 coins forever** — ~890/min, the worst rate in the game at every stage, and it never improves. Coins come from climbing tall, which is exactly what the rule says.
+That last row is the point. Pit height is pinned at 4.5 studs by design (§4.3), so training pays **608 coins forever** — ~8.9K/min, the worst rate in the game at every stage, and it never improves. Coins come from climbing tall, which is exactly what the rule says.
 
 ### 6.2 Per-run coin yield
 
@@ -347,35 +372,35 @@ At ×1.35 average combo:
 
 | Cash out at | Coins/run | Coins/min |
 |---|---|---|
-| Island 2 | 2.3K | 2,512 |
-| Island 4 | 10.8K | 3,518 |
-| Island 6 | 32.2K | 5,752 |
-| Island 8 | 91.8K | 10,818 |
-| Island 10 | 286K | 24,355 |
-| Summit (no cash-out) | 528K | 38,816 |
+| Island 2 | 23K | 25,300 |
+| Island 4 | 110K | 35,400 |
+| Island 6 | 323K | 57,700 |
+| Island 8 | 900K | 105,800 |
+| Island 10 | 2.68M | 227,300 |
+| Summit (no cash-out) | 5.07M | 372,800 |
 
 15× spread bottom to top, arriving almost entirely from leg strength rather than from any altitude bonus.
 
 ### 6.3 Coin sinks — egg prices
 
-Each egg ≈ 20–30 minutes of income at the altitude where it unlocks, so the sink tracks the tap.
+Each egg ≈ 25–30 minutes of income at the altitude where it unlocks, so the sink tracks the tap.
 
 | Island | Egg | Cost |
 |---|---|---|
-| 1 | Sand Egg | 50,000 |
-| 2 | Meadow Egg | 75,000 |
-| 3 | Pebble Egg | 100,000 |
-| 4 | Breeze Egg | 150,000 |
-| 5 | Storm Egg | 200,000 |
-| 6 | Aurora Egg | 300,000 |
-| 7 | Thunder Egg | 450,000 |
-| 8 | Nebula Egg | 650,000 |
-| 9 | Void Egg | 1,000,000 |
-| 10 | Summit Egg | 1,500,000 |
+| 1 | Sand Egg | 500,000 |
+| 2 | Meadow Egg | 750,000 |
+| 3 | Pebble Egg | 1,000,000 |
+| 4 | Breeze Egg | 1,500,000 |
+| 5 | Storm Egg | 2,000,000 |
+| 6 | Aurora Egg | 3,000,000 |
+| 7 | Thunder Egg | 4,500,000 |
+| 8 | Nebula Egg | 6,500,000 |
+| 9 | Void Egg | 10,000,000 |
+| 10 | Summit Egg | 15,000,000 |
 
-≈ ×1.4 per tier, slightly ahead of the income curve so later eggs cost marginally more playtime. Deliberately flatter than the Bubble Gum Simulator shape (10 → 110 → 450 → 5,000 → 15,000, ×4–10 per tier) — BGS can afford runaway pricing because its pets multiply income, and ours don't.
+≈ ×1.45 per tier, slightly ahead of the income curve so later eggs cost marginally more playtime. Deliberately flatter than the Bubble Gum Simulator shape (10 → 110 → 450 → 5,000 → 15,000, ×4–10 per tier) — BGS can afford runaway pricing because its pets multiply income, and ours don't.
 
-Auras: one band below eggs (island N aura = island N−1 egg price). **Aura reroll: 40,000 flat, unlimited** — the repeatable sink that absorbs late-game overflow.
+Auras: one band below eggs (island N aura = island N−1 egg price). **Aura reroll: 400,000 flat, unlimited** — the repeatable sink that absorbs late-game overflow.
 
 > ⚠️ **Risk worth flagging, not a recommendation to change the design.** Every comparable game's pets carry a stat multiplier, which is what makes players buy the 40th one. Cosmetic-only pets are a much weaker sink, and the design doc's own warning ("don't let this catalog ship shallow") is doing a lot of load-bearing work. If the catalog can't be deep at launch, the uncapped aura reroll is the pressure valve.
 
@@ -399,18 +424,18 @@ Level N = the cloud field between island N and island N+1. Main-line gap is **80
 
 | Level | Rising reach | **Main gap** | Peak height | Hops | Rise/hop | Cloud Ø | Ø as % of gap |
 |---|---|---|---|---|---|---|---|
-| 1 | 10.5 | **8** | 7.6 | 10 | 4.2 | 12 | 150% |
-| 2 | 11.3 | **9** | 8.1 | 11 | 4.5 | 12 | 133% |
-| 3 | 14.7 | **12** | 10.7 | 12 | 5.9 | 12 | 100% |
-| 4 | 16.2 | **13** | 11.7 | 13 | 6.4 | 12 | 92% |
-| 5 | 21.8 | **17** | 15.8 | 14 | 8.7 | 12 | 71% |
-| 6 | 24.8 | **20** | 17.9 | 15 | 9.8 | 12 | 60% |
-| 7 | 34.4 | **28** | 24.9 | 16 | 13.7 | 12 | 43% |
-| 8 | 40.5 | **32** | 29.3 | 17 | 16.1 | 12 | 38% |
-| 9 | 59.6 | **48** | 43.1 | 18 | 23.7 | 18 | 38% |
-| 10 | 75.4 | **60** | 54.6 | 20 | 30.0 | 23 | 38% |
+| 1 | 10.4 | **8** | 7.5 | 10 | 4.1 | 12 | 150% |
+| 2 | 12.2 | **10** | 8.8 | 11 | 4.8 | 12 | 120% |
+| 3 | 14.4 | **11** | 10.4 | 12 | 5.7 | 12 | 109% |
+| 4 | 17.3 | **14** | 12.5 | 13 | 6.9 | 12 | 86% |
+| 5 | 21.0 | **17** | 15.2 | 14 | 8.4 | 12 | 71% |
+| 6 | 25.9 | **21** | 18.7 | 15 | 10.3 | 12 | 57% |
+| 7 | 32.7 | **26** | 23.7 | 16 | 13.0 | 12 | 46% |
+| 8 | 41.7 | **33** | 30.2 | 17 | 16.6 | 13 | 38% |
+| 9 | 54.9 | **44** | 39.8 | 18 | 21.9 | 17 | 38% |
+| 10 | 75.0 | **60** | 54.3 | 20 | 29.9 | 23 | 38% |
 
-All in studs. **146 hops total** — deliberately short, because the cash-out loop makes you climb this ~22 times. A run to the top is ~12 minutes; a mid-game run to island 6 is ~5.6 minutes.
+All in studs. **146 hops total** — deliberately short, because the cash-out loop makes you climb this ~28 times. A run to the top is ~12 minutes; a mid-game run to island 6 is ~5.6 minutes.
 
 Two things to read off this table:
 - **Level 1's gap is 8 studs, below the 11.9 a vanilla character clears.** A brand-new player makes the first hop with untrained legs and zero upgrades, no tutorial required.
@@ -434,7 +459,7 @@ Low altitude is a forgiving cloud soup; the summit is a tightrope. Same bar thro
 
 | Island | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | Summit |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| Altitude (studs) | 0 | 40 | 90 | 165 | 245 | 370 | 515 | 735 | 1010 | 1435 | **2035** |
+| Altitude (studs) | 0 | 40 | 95 | 160 | 250 | 370 | 525 | 735 | 1015 | 1410 | **2010** |
 
 | Thing | Size (studs) |
 |---|---|
@@ -446,7 +471,8 @@ Low altitude is a forgiving cloud soup; the summit is a tightrope. Same bar thro
 | Cash-out arrival pad (Island 1) | 40 diameter, **non-collidable between players**, ≥30 studs clear of the first jump ledge |
 | Training area diameter | 45 (island 1) → 30 (island 10) |
 | Pit rim height / depth | 3 / 2 |
-| Medal cache footprint | 6 × 6, with a 3-stud no-walk buffer so nobody cashes out by accident |
+| Medal cache footprint | 6 × 6, with a 3-stud no-walk buffer so nobody strays into the prompt |
+| Leg-tier vendor footprint | 8 × 8, on every island, ≥15 studs from the cache so the two prompts never overlap |
 | Cloud thickness | 4 (levels 1–6), 6 (levels 7–10) |
 | Leg bulk scale | 1.00 → 1.35 across a tier band, resets to 1.00 on tier purchase |
 
@@ -477,7 +503,7 @@ Much gentler than Steep Steps (checkpoint every 100 m), because the run loop alr
 | Fade overlap (both sets solid) | **6 s** |
 | Reposition scope | X/Z only; islands never move |
 
-Worth noting the loop makes repositioning bite harder than it did: a player who has memorised a route re-runs it ~22 times, and the reshuffle invalidates that muscle memory. That's the hook working as intended, but it means the 30-minute interval should be watched in testing — it's the difference between "the world changed" and "my grind route got deleted."
+Worth noting the loop makes repositioning bite harder than it did: a player who has memorised a route re-runs it ~28 times, and the reshuffle invalidates that muscle memory. That's the hook working as intended, but it means the 30-minute interval should be watched in testing — it's the difference between "the world changed" and "my grind route got deleted."
 
 ---
 
@@ -485,13 +511,13 @@ Worth noting the loop makes repositioning bite harder than it did: a player who 
 
 | Activity | Amount | Total |
 |---|---|---|
-| Medal grind runs | ~22 runs | 137 min |
+| Medal grind runs | ~28 runs | 167 min |
 | Training | 500 jumps × 4.1 s | 34 min |
 | Discovery pushes to new personal bests | — | ~25 min |
 | Falls, menus, walking | — | ~25 min |
-| | | **≈ 3 h 40 m** |
+| | | **≈ 4 h 10 m** |
 
-That's an efficient run. Realistically **5–8 hours** for an average player, since miss rate climbs steeply past level 7 and a failed high push costs a whole run's time. Comparable to Steep Steps, where only ~1% of players reach 1,000 m — expect a similar completion cliff, and expect islands 8–10 to be seen by a small minority.
+That's an efficient run. Realistically **5–9 hours** for an average player, since miss rate climbs steeply past level 7 and a failed high push costs a whole run's time. Comparable to Steep Steps, where only ~1% of players reach 1,000 m — expect a similar completion cliff, and expect islands 8–10 to be seen by a small minority.
 
 ---
 
@@ -499,11 +525,12 @@ That's an efficient run. Realistically **5–8 hours** for an average player, si
 
 | Element | Format |
 |---|---|
-| Altitude | **display studs with an "m" suffix** — "1,435 m". Genre convention; the true conversion (1 stud = 0.28 m) would read 402 m and undersell the climb. Cosmetic call, flag if you'd rather be honest. |
-| Coins | abbreviated: `1.2K`, `450K`, `1.25M` |
-| Medals | never abbreviated — always exact ("260"). They're scarce; the exact number is the point. |
-| Leg Level | `L 425 / 575` — current / next island's threshold |
-| **Cache preview** | when in range of a cache, show **"+20 Medals — returns you to the bottom"** and the value of the *next* island's cache alongside it. The decision only works if both sides of it are visible. |
+| Altitude | **display studs with an "m" suffix** — "1,410 m". Genre convention; the true conversion (1 stud = 0.28 m) would read 395 m and undersell the climb. Cosmetic call, flag if you'd rather be honest. |
+| Coins | abbreviated: `23K`, `2.68M`, `15M` |
+| Medals | never abbreviated — always exact ("1,200"). They're scarce; the exact number is the point. |
+| Leg Level | `L 4,250 / 5,750` — current / next island's threshold |
+| Leg Tier | icon + name + `7/10`, so the tier track reads as a collection |
+| **Cache preview** | when in range of a cache, show **"+200 Medals — returns you to the bottom"** and the value of the *next* island's cache alongside it. The decision only works if both sides of it are visible. |
 | Combo | only visible above ×1.5, so it reads as a reward not a nag |
 
 ---
@@ -516,10 +543,11 @@ That's an efficient run. Realistically **5–8 hours** for an average player, si
 | Pit gravity multiplier | × 1.28 |
 | Medal cache value | × 1.38 |
 | Medal first-arrival bonus | × 1.4 |
+| **Leg Tier** | **one per island**, cost = 2× that island's arrival bonus |
+| Tier multiplier | × 1.053 |
 | Main gap | × 1.25 |
 | Hops in level | + 2 |
-| Egg price | × 1.4 |
-| Leg Tier | one every 2 islands, cost × 1.9 |
+| Egg price | × 1.45 |
 
 Coins need no extension rule — they're a pure function of jump height, so they scale themselves.
 
@@ -529,8 +557,8 @@ Coins need no extension rule — they're a pure function of jump height, so they
 
 - **Roblox engine constants** — gravity 196.2 studs/s², default `JumpPower` 50 / `JumpHeight` 7.2, `WalkSpeed` 16, 1 stud = 0.28 m: [Jumping — Roblox Wiki](https://roblox.fandom.com/wiki/Jumping), [Stud (unit) — Roblox Wiki](https://roblox.fandom.com/wiki/Stud_(unit)), [WalkSpeed — Roblox Wiki](https://roblox.fandom.com/wiki/Class:Humanoid/WalkSpeed)
 - **Vanilla jump reach (~10–12 studs horizontal, 11-stud block height)** — [Calculating maximum player jump distance](https://devforum.roblox.com/t/calculating-maximum-player-jump-distance/455105), [How to calculate studs jumped from JumpPower](https://devforum.roblox.com/t/how-to-calculate-how-many-studs-a-player-can-jump-based-on-jumppower/100480). Our S=1 model reproduces 11.9 studs, so the whole curve is anchored to measured vanilla behaviour.
-- **Ninja Legends** — 62 ranks with costs escalating into quadrillions/septillions and multipliers to ×9.6 billion: [Ranks — Ninja Legends Wiki](https://roblox-ninja-legends.fandom.com/wiki/Ranks), [highest rank breakdown](https://www.sportskeeda.com/roblox-news/what-highest-rank-roblox-ninja-legends). Used as the **anti-pattern** for Medals — we keep the power currency in three digits.
+- **Ninja Legends** — 62 ranks with costs escalating into quadrillions/septillions and multipliers to ×9.6 billion: [Ranks — Ninja Legends Wiki](https://roblox-ninja-legends.fandom.com/wiki/Ranks), [highest rank breakdown](https://www.sportskeeda.com/roblox-news/what-highest-rank-roblox-ninja-legends). Its *many small ranks* structure is the model for a tier per island; its number inflation is the anti-pattern we avoid for Medals.
 - **Muscle Legends** — rebirth cost `10,000 + 5,000x`, first rebirth at 10,000 strength, stacking permanent multipliers: [How Rebirthing Works](https://muscle-legends.fandom.com/wiki/How_Rebirthing_Works). The reset-and-re-run structure is the closest shipped analogue to our cash-out loop, and the source of the "flat cost curve, multiplicative reward" shape behind our tier pricing.
-- **Bubble Gum Simulator** — egg costs 10 → 110 → 450 → 5,000 → 15,000 across worlds (~×4–10 per tier): [Eggs — BGS Infinity Wiki](https://bgs-infinity.fandom.com/wiki/Eggs). Our egg curve is deliberately flatter (×1.4) because our pets carry no income multiplier.
+- **Bubble Gum Simulator** — egg costs 10 → 110 → 450 → 5,000 → 15,000 across worlds (~×4–10 per tier): [Eggs — BGS Infinity Wiki](https://bgs-infinity.fandom.com/wiki/Eggs). Our egg curve is deliberately flatter (×1.45) because our pets carry no income multiplier.
 - **Steep Steps** — 1,000–2,000 m mountains, bonfire checkpoints every 100 m, only ~1% of players reach 1,000 m: [Rolimon's](https://www.rolimons.com/game/11606818992), [Steep Steps — Roblox Wiki](https://roblox.fandom.com/wiki/Steep_steps/STEEP_STEPS). Anchor for climb length, checkpoint density, and realistic completion rates.
 - **Exponential cost-curve practice** — pure `level^3` / `base × 2^level` curves are widely reported as unbalanced (front-loaded then trivial); adding a linear term or fitting the curve empirically is the standard fix: [Balancing exponential upgrade progression](https://devforum.roblox.com/t/balancing-exponential-upgrade-progression/2434950), [Simulator Formulas](https://devforum.roblox.com/t/simulator-formulas/853976). Why our bands scale ×1.25–1.5 rather than ×2+.
