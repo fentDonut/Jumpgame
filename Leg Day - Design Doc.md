@@ -2,6 +2,8 @@
 
 Roblox game: a vertical climbing game where the only way up is a timing-based jump. Players train and upgrade their legs to jump farther, and climb an endless sky of islands and clouds that get sparser — and periodically rearrange — the higher you go.
 
+> **Concrete values live in [Leg Day - Numbers.md](Leg%20Day%20-%20Numbers.md)** — jump-stat curve, per-island gravity, Leg Level bands, Medal and Coin economies, gap distances and object sizes, calibrated against real Roblox physics and shipped-game economies. Several open questions below now have proposed numeric answers there, marked as such; they're proposals awaiting a feel test, not settled decisions.
+
 ## Core loop
 
 1. Stand at the edge of a platform.
@@ -39,7 +41,7 @@ Roblox game: a vertical climbing game where the only way up is a timing-based ju
 
 - Players start on a main island with the sand pit — the game's lightest training area. Low islands beyond it are close together and forgiving; higher up, clouds get progressively sparser and training-area gravity gets heavier, gating progress behind both stat upgrades and player skill.
 - **Clouds reposition (X/Z) roughly every 30 minutes.** This is the game's "the world changes under you" hook. A reposition for a given level (the band of clouds between two islands) only fires if no player is currently in that level — so nobody gets stranded or repositioned out from under mid-climb. Fixed islands with training areas don't move, only the connecting clouds do. If a level stays occupied for a full hour, the server forces a reposition anyway (see below) rather than letting one player block it forever.
-- Checkpoints: on reaching a new cloud/island, it becomes the respawn point. Falling sends the player back to their last checkpoint, not to the ground. No fall damage — a miss costs progress (back to checkpoint), not health.
+- Checkpoints: on reaching a new cloud/island, it becomes the respawn point. Falling sends the player back to their last checkpoint, not to the ground. No fall damage — a miss costs progress (back to checkpoint), not health. **The one exception is cashing out a medal cache, which deliberately wipes the whole chain back to the bottom** — see Progression & currency.
 - **No fast travel.** There is no teleport back to a previously-landed island — every return trip, including going back down to retrain at a lower island's training area, is a real physical climb. This makes altitude genuinely hard-won (you can't cheaply revisit it), but it also puts a real time-cost on the free Training track that didn't exist before — see open questions.
 
 ## Visual style reference
@@ -58,8 +60,14 @@ Roblox game: a vertical climbing game where the only way up is a timing-based ju
 
 Two currencies, kept deliberately separate so power and vanity never compete for the same wallet:
 
-- **Medals — spent on Leg Tier upgrades (gear/power).** Earned by reaching an island for the first time (a one-time award) plus collectibles scattered on that island while you're there; the higher/farther the island, the more medals it's worth. Medals are scarce and altitude-gated by design — you can't grind them in place, only by climbing further than you have before. This keeps the game's one power-currency tied directly to the skill-based climb, the same hook the jump bar itself is built on.
-- **Coins — spent on pets and auras (cosmetics only, no stat effect).** A continuous per-jump trickle, earned from any jump anywhere, not altitude-gated. Coins are abundant and farmable by playing a lot, which is exactly right for a vanity sink — a bot or a grinder inflating their coin total only buys flair, never power.
+- **Medals — spent on Leg Tier upgrades (gear/power). Earned by cashing out a run.** Each island holds a single **medal cache**. Touching it banks the medals and **teleports you back to the bottom**, so you get one cache per climb and every run is the same decision: *how high do I dare go before cashing out?* Higher caches are worth more, so the ceiling of your legs sets your earn rate, and a Leg Tier costs several full round trips. Reaching an island for the first time also pays a one-time arrival bonus.
+  - **Collecting is voluntary and arrival never triggers it.** You walk into the cache deliberately. If landing on a new island ejected you automatically, pushing for a personal best would punish you and the risk/reward decision would evaporate.
+  - **It takes a deliberate confirm, not a touch.** Proximity opens a prompt and collection fires on a short hold. Ending a twelve-minute climb is far too expensive to hang off a collision check — especially on a small high island with other players jostling around the cache.
+  - **Cashing out clears your checkpoint chain back to the first island.** Without this the loop is trivially broken: bank the cache, jump off deliberately, and respawn at your top checkpoint with the medals already paid. Award, wipe checkpoints, and teleport must be one server-side transaction.
+  - Medals stay scarce and altitude-gated — you can't grind them in place, only by climbing. The cost is measured in *climbs*, which is why the numbers stay small (three digits all game).
+- **Coins — spent on pets and auras (cosmetics only, no stat effect). Earned on every jump, scaled by how high that jump peaked.** No altitude term and no island multiplier: the payout is a function of the arc itself, so stronger legs and better timing both pay, and the same upgrade that doubles your reach multiplies your income far more. Coins are abundant and farmable by playing a lot, which is exactly right for a vanity sink — a grinder inflating their coin total only buys flair, never power.
+  - **This makes training a deliberate coin desert.** Pit jumps are pinned to a constant low height by design, so they pay a flat trivial amount at every altitude and never improve. Coins come from climbing tall.
+  - **The two loops interlock.** The re-climbs the medal loop forces on you are exactly when the coin loop pays out, so the repetition is never unpaid.
 - Leaderboard for max height reached — cheap, strong retention hook for the genre.
 
 ## Monetization (proposed, not settled)
@@ -79,7 +87,10 @@ Two currencies, kept deliberately separate so power and vanity never compete for
 - The starting island's training area is a sand pit — the lightest resistance in the game and the tutorial for the mechanic.
 - Players start on a main island with the sand pit.
 - No fast travel. Every return trip, including retraining at a lower island, is a physical climb.
-- Two currencies, split by purpose: Medals (earned by first-time island arrival + on-island collectibles, more the higher you go) spend on Leg Tier upgrades only; Coins (continuous per-jump trickle) spend on pets and auras only. Power and cosmetics never share a wallet.
+- Two currencies, split by purpose: Medals spend on Leg Tier upgrades only; Coins spend on pets and auras only. Power and cosmetics never share a wallet.
+- Medals are earned by **cashing out a run**: one voluntary medal cache per island, collecting it teleports you to the bottom, so a Leg Tier costs several full climbs. Higher caches pay more. Plus a one-time arrival bonus per island.
+- Cashing out **resets the checkpoint chain to the bottom**. Arriving on an island never auto-triggers the cache, and collecting takes a deliberate confirm rather than a touch.
+- Coins are earned **per jump, scaled by the height of that jump** — not by altitude or island. Training-pit jumps are deliberately low, so training is the worst coin rate in the game and never improves.
 - A cloud level only repositions when no player is currently in it; islands themselves never move. Exception: if a level has stayed occupied for a full hour (someone parked in it blocking the reshuffle), the server forces it anyway — a 15-second warning fires, then the new cloud set fades in while the old set fades out, with both sets solid/collidable during the overlap so nobody falls through the transition, before the old set fully disappears.
 - No fall damage. Missing a jump costs a return trip to the last checkpoint, not health.
 - **Cooperative, not competitive.** No racing/PvP framing — but it's a shared world: players can see each other climbing, training, and jumping, even though there's no head-to-head win condition.
@@ -93,8 +104,9 @@ Two currencies, kept deliberately separate so power and vanity never compete for
 
 ## Open questions (need a prototype, not more design docs)
 
-- **How does a player retrain after climbing higher, now that fast travel is gone?** Every retrain at a lower island's training area costs a real re-climb, which risks turning the free Training track into a time-tax rather than a skill-based one. Needs a decision: is the re-climb itself acceptable friction (it does double as skill practice), or does it need a narrow, training-scoped fix — e.g. a limited "return to last checkpoint" recall, distinct from general fast travel — so retraining doesn't become the same tedium fast travel was removed to avoid elsewhere?
-- **Does removing fast travel create backtracking chokepoints?** Players funneled repeatedly through the same low islands to retrain or re-climb could turn training-area entrances and narrow ledges into griefing/blocking spots in the shared, collision-enabled world — worth a look once there's a prototype with more than one player in it.
+- ~~**How does a player retrain after climbing higher, now that fast travel is gone?**~~ **Resolved by the medal cash-out loop.** The cash-out *is* the ride down, and it's opt-in — so retraining stops being a dedicated trip. You bank at a high island, land at the bottom, and the re-climb passes every pit on the way up, topping up each band in passing on a journey you were making anyway. No recall mechanic needed.
+- **Does removing fast travel create backtracking chokepoints?** *Sharper now, not softer.* The cash-out loop funnels every player through the bottom island constantly — its spawn, arrival pad, sand pit entrance and first ledges are now the highest-traffic geometry in the game, and a full playthrough runs them ~22 times. Oversizing the first island (see Numbers) is the proposed mitigation, but this needs a prototype with more than one player in it before it's trusted.
+- **Does the reshuffle interval fight the grind?** Cloud repositioning bites harder under this loop: a player re-runs a memorised route ~22 times, and a reshuffle invalidates that muscle memory. That's the "world changes under you" hook working as intended — but 30 minutes may be the line between "the world changed" and "my grind route got deleted." Worth watching.
 - **Exact gravity curve per island**: since gravity tracks expected leg strength, the real question is how tightly it tracks — whether it's a straight formula off the island's Leg Level band (so training height is near-identical everywhere) or deliberately runs slightly ahead of it, so each new area feels heavy for a few jumps before you settle in. The second is more interesting but needs a feel test.
 - **What happens to an under-levelled player in a high area?** Gravity is tuned for the strength you're *supposed* to have on arrival, so someone who fast-travels or gets carried past their training will find that pit disproportionately brutal. Is that a fine, self-correcting "go train lower first" signal, or does it need a floor on air-time so the area is never unusable?
 - **Exact training-jump count and strength-per-jump scaling**: the ~40-60 jump / 3-5 min target is a design goal, not a tuned number — needs playtesting to land the curve and confirm the pacing holds.
