@@ -35,27 +35,32 @@ The two loops interlock: the re-climbs the medal loop forces on you are exactly 
 Everything about jump power collapses into one scalar, **S**, where **S = 1.00 is a vanilla Roblox character**.
 
 ```
-S = TierMult × LevelMult × QualityMult
+S    = TierMult × LevelMult × QualityMult
+Lift = √10 once the tutorial hands over Starter Legs, otherwise 1
 ```
 
 Applied on takeoff, server-side, as a single velocity write:
 
 ```lua
-local Vy = 53.2 * S
-local Vx = 22.0 * S
-hrp.AssemblyLinearVelocity = hrp.CFrame.LookVector * Vx + Vector3.new(0, Vy, 0)
+local Vy = 53.2 * S * Lift   -- Starter Legs lift the launch...
+local Vx = 22.0 * S          -- ...and nothing else
+hrp.AssemblyLinearVelocity = aim * Vx + Vector3.new(0, Vy, 0)
 ```
 
-Derived arc (gravity 196.2):
+**Lift is vertical only, and that is the whole design of it.** Height goes as `Vy²`, so ×√10 on Vy is exactly ×10 on height. Reach is `Vx × airtime` and only the airtime moved, so reach goes ×3.16. The jump becomes a *moon jump* rather than a long jump — which is what keeps a 280-stud island somewhere you walk around instead of clear in two hops.
+
+Derived arc (gravity 196.2), with Starter Legs:
 
 | Quantity | Formula | S=1.00 | S=2.75 (max) |
 |---|---|---|---|
-| Airtime (flat) | `2·Vy / g` | 0.54 s | 1.49 s |
-| **Peak height** | `Vy² / 2g` = `7.2·S²` | 7.2 studs | 54.3 studs |
-| Flat reach | `Vx · airtime` = `11.9·S²` | 11.9 studs | 89.8 studs |
-| **Rising reach** (see §7.1) | `0.835 × flat` = `9.94·S²` | 9.9 studs | 75.0 studs |
+| Airtime (flat) | `2·Vy·Lift / g` | 1.71 s | 4.71 s |
+| **Peak height** | `Vy² / 2g` = `72·S²` | 72.1 studs | 544.2 studs |
+| Flat reach | `Vx · airtime` = `37.7·S²` | 37.7 studs | 284.7 studs |
+| **Rising reach** (see §7.1) | `0.835 × flat` = `31.5·S²` | 31.5 studs | 237.7 studs |
 
-S=1 giving an 11.9-stud flat reach lands inside the measured 10–12 stud vanilla range — the model is anchored to reality, not invented.
+Without the legs — which is only ever the ~30 seconds of the tutorial — the same table reads 0.54 s / 7.2 / 11.9 / 9.9. That 11.9-stud flat reach lands inside the measured 10–12 stud vanilla range, so the model is still anchored to real Roblox behaviour; Starter Legs are a deliberate step off that anchor, not a drift from it.
+
+> ⚠️ **The top of this curve is very floaty.** Endgame legs peak at 544 studs with 4.7 seconds of airtime — over four seconds per hop, 20 times a run. That may read as majestic or as waiting; it's the first thing to feel at island 9–10 before trusting §7's spacing.
 
 Distance and height both scale with **S²**, so power feels superlinear: doubling S nearly quadruples your reach. Coins scale with height *squared* (§6), so they scale with **S⁴** — the same upgrade that doubles your reach multiplies your income sixteenfold. That's the whole "superhero legs" payoff, and it's why the power number itself can stay small.
 
@@ -102,18 +107,51 @@ Note the coin column falls off a cliff — that's automatic, not a separate rule
 
 ### 2.4 The resulting power curve
 
+Peak and reach below are **with Starter Legs**, i.e. what a player actually has from the end of the tutorial onward.
+
 | Level | Tier held | Leg Level | **S** | Peak height | Rising reach |
 |---|---|---|---|---|---|
-| 1 → 2 | 1 | 500 | 1.02 | 7.5 | 10.4 |
-| 2 → 3 | 2 | 1,200 | 1.11 | 8.8 | 12.2 |
-| 3 → 4 | 3 | 2,000 | 1.20 | 10.4 | 14.4 |
-| 4 → 5 | 4 | 3,000 | 1.32 | 12.5 | 17.3 |
-| 5 → 6 | 5 | 4,250 | 1.45 | 15.2 | 21.0 |
-| 6 → 7 | 6 | 5,750 | 1.61 | 18.7 | 25.9 |
-| 7 → 8 | 7 | 7,750 | 1.81 | 23.7 | 32.7 |
-| 8 → 9 | 8 | 10,000 | 2.05 | 30.2 | 41.7 |
-| 9 → 10 | 9 | 13,000 | 2.35 | 39.8 | 54.9 |
-| 10 → summit | 10 | 17,000 | 2.75 | 54.3 | 75.0 |
+| 1 → 2 | 1 | 500 | 1.02 | 75 | 33 |
+| 2 → 3 | 2 | 1,200 | 1.11 | 88 | 39 |
+| 3 → 4 | 3 | 2,000 | 1.20 | 104 | 46 |
+| 4 → 5 | 4 | 3,000 | 1.32 | 125 | 55 |
+| 5 → 6 | 5 | 4,250 | 1.45 | 152 | 67 |
+| 6 → 7 | 6 | 5,750 | 1.61 | 187 | 82 |
+| 7 → 8 | 7 | 7,750 | 1.81 | 237 | 104 |
+| 8 → 9 | 8 | 10,000 | 2.05 | 302 | 132 |
+| 9 → 10 | 9 | 13,000 | 2.35 | 398 | 174 |
+| 10 → summit | 10 | 17,000 | 2.75 | 544 | 238 |
+
+### 2.5 Starter Legs and the tutorial
+
+The free pair the tutorial hands over, and the only multiplier in the game nobody has to earn.
+
+| Parameter | Value |
+|---|---|
+| Lift | **√10 = 3.1623**, applied to `Vy` only |
+| Effect | **height ×10**, distance ×3.16, airtime ×3.16 |
+| Cost | free |
+| Granted | on completing step 3 below |
+| Stacks with | Tier and Level, multiplicatively — it sets the baseline the whole §2.4 curve sits on |
+| Lost | never |
+
+**Before the handover you are a vanilla Roblox character:** 7.2 stud peak, 11.9 stud reach, 0.54 s of airtime, on an island 280 studs across. That is the setup, not a placeholder — the ×10 has to be something the player felt arrive.
+
+| Step | Completes on | Teaches |
+|---|---|---|
+| 1 | any **tapped** jump | tap is the safe jump |
+| 2 | any **held** (judged) jump | holding opens the bar, releasing locks it |
+| 3 | a **Perfect** | the middle of the bar is the whole game |
+
+| Parameter | Value |
+|---|---|
+| Steps | 3 |
+| Mercy rule | after **5** judged jumps in total, a Good also clears step 3 |
+| Expected duration | ~30 s |
+| Advances on | jumps **the server judged** — never a client-reported step |
+| Persistence | **none yet.** No DataStore in the project, so the tutorial re-runs every join. Needs fixing before ship. |
+
+Income across the handover: a Perfect pays **~16 coins** before the legs and **~1,560** after — ×100, because coins go as peak² (§6.1). The tutorial is the only time in the game coins are a rounding error, which is its own small argument for keeping it short.
 
 **This curve is smooth, and that's the real win of ten tiers.** At five tiers, gear arrived every other island and the S curve had visible steps at levels 3, 5, 7 and 9 — an island where a purchase carried you, then an island where only grinding did. A tier per island removes the sawtooth entirely: every island contributes one gear step *and* one training band, so progress reads as continuous.
 
@@ -123,11 +161,23 @@ Note the coin column falls off a cliff — that's automatic, not a separate rule
 
 Sweep speed is **identical at every altitude** — per the settled decision, bad timing is punished by platform spacing, never by a faster bar.
 
+**Tap vs. hold.** The crouch wind-up (§4.2) doubles as the threshold: let go during it and you take the safe jump, keep holding and the bar opens. One number, no dead zone between the two.
+
+| Input | Result |
+|---|---|
+| Release **before** the crouch finishes | **Okay**, guaranteed, and **it fires on release** — the 0.2 s crouch is a threshold, not a delay you sit through. The bar never appears. |
+| Release **after** it | Judged by the bar: Perfect / Good / Okay / Weak |
+| Never release | Miss, after the timeout below |
+
+**This holds inside training pits too.** A pit tap is just as instant as any other, so the 2.5 s pit crouch is only ever paid by a player who chooses to hold for the bar. It's still the only crouch drawn on screen — 2.5 s of standing still needs explaining and 0.2 s doesn't — and it now appears only once you've held for a quarter-second, so a tap draws nothing anywhere. The consequence for training pacing is in §4.2, and it is not small.
+
+The tap's expected value is 0.82. The bar's, for a player releasing at random, is **0.793** — so guessing is worse than tapping, and the bar only pays from the moment you can actually read it. That gap is the entire skill curve, and it's free: it falls straight out of the zone widths.
+
 | Parameter | Value |
 |---|---|
 | Sweep period (one-way pass) | **1.40 s** |
 | Sweep pattern | left → right → left, ping-pong; centre = Perfect |
-| Attempt times out after | 2 full passes (2.80 s) → auto-Weak |
+| Attempt times out after | 2 full passes (2.80 s) → Miss (§2.3) |
 
 Zones, as half-width fraction from centre on a bar normalised to [−1, +1]:
 
@@ -171,6 +221,8 @@ Breaks on any non-Perfect, on a fall, and on cashing out.
 
 Design target is **~50 training jumps ≈ 3–5 min per island**. Held constant by scaling *gain per jump* with pit gravity while the band widens in step — so higher pits train faster, and old bands become trivial.
 
+**Pit gain is per *Perfect* jump** — lesser results earn a fraction of it, see §4.2.1.
+
 | Island | Pit gain / jump | Band width | Leg Level to leave |
 |---|---|---|---|
 | 1 (Sand Pit) | 10 | 500 | 500 |
@@ -199,9 +251,33 @@ Under heavy gravity airtime collapses to ~0.35 s, so raw jump spam would finish 
 
 50 jumps × 4.1 s = **3.4 minutes per island** ✓ (target 3–5 min). Crouch duration is the single number to tune if pacing feels wrong; it's the same at every altitude, which is what keeps the pit feeling identical everywhere.
 
+### 4.2.1 Pit gain scales with jump quality **[settled]**
+
+Instant taps (§3) skip the crouch, so the two routes through a pit cost very different amounts of time — **~0.5 s for a tap against ~3.7 s for a played bar, a 7.4× gap**. Flat gain per jump therefore made tap-spam strictly optimal and left the 2.5 s crouch as a tax on the only skilful option. So **the `Pit gain / jump` column above is what a *Perfect* earns**, and everything else is a fraction of it:
+
+| Result | Weight | Gain in the sand pit | Per minute | Band time |
+|---|---|---|---|---|
+| Perfect | **1.00** | 10.0 | 162 | **3.1 min** |
+| Good | **0.60** | 6.0 | 97 | 5.1 min |
+| Okay | **0.10** | 1.0 | 16 | 30.8 min |
+| Weak | **0.03** | 0.3 | 5 | 102.8 min |
+| Miss | 0 | — | — | never |
+| *Tap (spammed)* | *0.10* | *1.0* | *120* | ***4.2 min*** |
+
+These are far steeper than the §4.5 climbing weights on purpose. At the §4.5 values a tap earns 0.80 gain/s against a Perfect's 0.27 — **tapping would win three to one and the scaling would achieve nothing**. At these values a Perfect earns 0.27 against a tap's 0.20, so:
+
+- **Playing the bar well is the fastest route** (3.1 min a band), and it lands exactly on the original 3–5 min target.
+- **Spamming taps still works** (4.2 min) — it's a valid, slightly slower, zero-attention option, not a punishment.
+- **Good is worse than tapping** (5.1 min). That's deliberate and it mirrors the climb: the bar pays only if you can actually hit the middle. Half-playing it is the worst of both.
+- Across the whole arc: **~31 min played well, ~42 min spammed** (§8), against ~4 min before this.
+
+The award still fires on landing inside the zone, weighted by the quality of the jump that started it — so jumping *out* of a pit never pays, and falling in over the rim pays at the Okay weight rather than full price.
+
 ### 4.3 Pit gravity
 
-Tuned so a training jump peaks at a constant **4.5 studs** (vs. 7.2 vanilla) at the strength you're expected to have on arrival:
+Tuned so a training jump peaks at a constant **45 studs** (vs. 72 outside the pit) at the strength you're expected to have on arrival. What the number encodes is the *ratio* — a pit jump is 1.6× shorter than the one outside it — so it scaled with Starter Legs and the multipliers below didn't move at all. The air-time floor is likewise now 22 studs, not 2.2.
+
+**Horizontal launch is damped to 0.35 inside a pit.** Training is jumping on the spot: without this, a full-power pit jump would carry 24 studs against a 42-stud pit and land outside the zone, earning nothing. It also means a pit never has to be as wide as your reach — which matters, because reach is exactly what Starter Legs tripled. Fictionally it's the sand swallowing the push-off, which is where the pit came from in the first place.
 
 ```
 g_pit = 196.2 × (7.2 · S_expected²) / 4.5    →   gravityMult = 1.60 × S_expected²
@@ -350,21 +426,21 @@ The trade is that **the backtracking chokepoint question gets sharper, not softe
 **Coins are paid per jump, scaled by how high that jump peaked.** One formula, no altitude term, no island multiplier:
 
 ```
-Coins = 30 × (peakHeight in studs)² × comboMult
+Coins = 0.3 × (peakHeight in studs)² × comboMult
 ```
 
-Since peak height = `7.2·S²`, coins scale with **S⁴**. Quality is already inside S, so bad timing is punished automatically (§2.3) with no separate rule.
+**The rate is 0.3, not 30**, because Starter Legs put every peak up ×10 and coins go as the square: dividing by 100 leaves every payout below exactly where it was tuned, so the egg prices in §6.3 still mean what they say. Since peak height = `72·S²`, coins scale with **S⁴**. Quality is already inside S, so bad timing is punished automatically (§2.3) with no separate rule.
 
 | Jump | Peak height | Coins (no combo) |
 |---|---|---|
-| Vanilla legs, Perfect | 7.5 | **1,688** |
-| Vanilla legs, Weak | 3.2 | **307** |
-| Island 5 legs, Perfect | 15.2 | **6,931** |
-| Island 10 legs, Perfect | 54.3 | **88,450** |
-| Island 10 legs, Perfect, ×3 combo | 54.3 | **265,350** |
-| **Any training-pit jump, any island** | 4.5 | **608** |
+| Starter legs, Perfect | 75 | **1,688** |
+| Starter legs, Weak | 32 | **307** |
+| Island 5 legs, Perfect | 152 | **6,931** |
+| Island 10 legs, Perfect | 544 | **88,450** |
+| Island 10 legs, Perfect, ×3 combo | 544 | **265,350** |
+| **Any training-pit jump, any island** | 45 | **608** |
 
-That last row is the point. Pit height is pinned at 4.5 studs by design (§4.3), so training pays **608 coins forever** — ~8.9K/min, the worst rate in the game at every stage, and it never improves. Coins come from climbing tall, which is exactly what the rule says.
+Every coin figure is unchanged from the pre-Starter-Legs tuning; only the heights they're computed from moved. That last row is the point: pit height is pinned at 45 studs by design (§4.3), so training pays **608 coins forever** — ~8.9K/min, the worst rate in the game at every stage, and it never improves. Coins come from climbing tall, which is exactly what the rule says.
 
 ### 6.2 Per-run coin yield
 
@@ -422,20 +498,26 @@ t_landing = 1.671 · Vy / g   vs.   2.000 · Vy / g flat     →    83.5% of fla
 
 Level N = the cloud field between island N and island N+1. Main-line gap is **80% of a Perfect jump** at expected strength, so Perfect clears with margin and Good just makes it.
 
+Rebuilt for Starter Legs: horizontal quantities (reach, gap, cloud Ø) are **×3.16**, vertical ones (peak, rise/hop) are **×10**. The sky is now much taller than it is wide, which is the shape a moon jump asks for.
+
 | Level | Rising reach | **Main gap** | Peak height | Hops | Rise/hop | Cloud Ø | Ø as % of gap |
 |---|---|---|---|---|---|---|---|
-| 1 | 10.4 | **8** | 7.5 | 10 | 4.1 | 12 | 150% |
-| 2 | 12.2 | **10** | 8.8 | 11 | 4.8 | 12 | 120% |
-| 3 | 14.4 | **11** | 10.4 | 12 | 5.7 | 12 | 109% |
-| 4 | 17.3 | **14** | 12.5 | 13 | 6.9 | 12 | 86% |
-| 5 | 21.0 | **17** | 15.2 | 14 | 8.4 | 12 | 71% |
-| 6 | 25.9 | **21** | 18.7 | 15 | 10.3 | 12 | 57% |
-| 7 | 32.7 | **26** | 23.7 | 16 | 13.0 | 12 | 46% |
-| 8 | 41.7 | **33** | 30.2 | 17 | 16.6 | 13 | 38% |
-| 9 | 54.9 | **44** | 39.8 | 18 | 21.9 | 17 | 38% |
-| 10 | 75.0 | **60** | 54.3 | 20 | 29.9 | 23 | 38% |
+| 1 | 33 | **25** | 75 | 10 | 41 | 38 | 150% |
+| 2 | 39 | **32** | 88 | 11 | 48 | 38 | 120% |
+| 3 | 46 | **35** | 104 | 12 | 57 | 38 | 109% |
+| 4 | 55 | **44** | 125 | 13 | 69 | 38 | 86% |
+| 5 | 67 | **54** | 152 | 14 | 84 | 38 | 71% |
+| 6 | 82 | **67** | 187 | 15 | 103 | 38 | 57% |
+| 7 | 104 | **82** | 237 | 16 | 130 | 38 | 46% |
+| 8 | 132 | **105** | 302 | 17 | 166 | 41 | 38% |
+| 9 | 174 | **139** | 398 | 18 | 219 | 54 | 38% |
+| 10 | 238 | **190** | 544 | 20 | 299 | 73 | 38% |
 
-All in studs. **146 hops total** — deliberately short, because the cash-out loop makes you climb this ~28 times. A run to the top is ~12 minutes; a mid-game run to island 6 is ~5.6 minutes.
+All in studs. **146 hops total** — deliberately short, because the cash-out loop makes you climb this ~28 times. The Ø-as-%-of-gap column is untouched, so the difficulty curve is exactly the one that was tuned; only the units moved.
+
+> ⚠️ **Two things this rescale breaks that aren't fixed yet.**
+> 1. **Island diameters (§7.4) did not scale.** A level-10 cloud is now 73 studs across against island 10's 100 — a landing pad nearly the size of the island it leads to. Either islands go ×3.16 (island 1 becomes 885, and it's already built at 280) or the late cloud sizes come down. Needs a call.
+> 2. **Hop time is now airtime-dominated** and varies with altitude: 1.7 s of flight at level 1 against 4.7 s at level 10, where before it was 0.54–1.49 s. §5.2's flat 5.6 s hop and everything derived from it (medals/min, the 167-minute grind figure in §8) are estimates until that's re-derived from a real run.
 
 Two things to read off this table:
 - **Level 1's gap is 8 studs, below the 11.9 a vanilla character clears.** A brand-new player makes the first hop with untrained legs and zero upgrades, no tutorial required.
@@ -457,9 +539,11 @@ Low altitude is a forgiving cloud soup; the summit is a tightrope. Same bar thro
 
 ### 7.4 Altitudes and sizes
 
+Altitudes are ×10, since every hop now rises ten times as far.
+
 | Island | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | Summit |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| Altitude (studs) | 0 | 40 | 95 | 160 | 250 | 370 | 525 | 735 | 1015 | 1410 | **2010** |
+| Altitude (studs) | 0 | 400 | 950 | 1600 | 2500 | 3700 | 5250 | 7350 | 10150 | 14100 | **20100** |
 
 | Thing | Size (studs) |
 |---|---|
@@ -512,10 +596,12 @@ Worth noting the loop makes repositioning bite harder than it did: a player who 
 | Activity | Amount | Total |
 |---|---|---|
 | Medal grind runs | ~28 runs | 167 min |
-| Training | 500 jumps × 4.1 s | 34 min |
+| Training | 500 Perfect pit jumps (§4.2.1) | 31 min |
 | Discovery pushes to new personal bests | — | ~25 min |
 | Falls, menus, walking | — | ~25 min |
-| | | **≈ 4 h 10 m** |
+| | | **≈ 4 h 08 m** |
+
+Training is 31 minutes if you play the bar in the pits and ~42 if you spam taps, so the lazy route costs about ten extra minutes across the arc — enough to matter, not enough to feel like a punishment.
 
 That's an efficient run. Realistically **5–9 hours** for an average player, since miss rate climbs steeply past level 7 and a failed high push costs a whole run's time. Comparable to Steep Steps, where only ~1% of players reach 1,000 m — expect a similar completion cliff, and expect islands 8–10 to be seen by a small minority.
 

@@ -7,19 +7,35 @@ Roblox game: a vertical climbing game where the only way up is a timing-based ju
 ## Core loop
 
 1. Stand at the edge of a platform.
-2. Press **Space** to open the jump bar — an indicator sweeps across it.
-3. Press **Space** again to lock in. Distance from center determines jump quality: Perfect / Good / Okay / Weak.
+2. **Tap Space** for the safe jump: instant, a guaranteed **Okay**, no bar drawn at all. No risk — and no reach. It's a repositioning jump, not a climbing one.
+3. **Hold Space** instead and the crouch opens the jump bar — an indicator sweeps across it. **Release** to lock in. Distance from center determines jump quality: Perfect / Good / Okay / Weak.
 4. Land on the next island or cloud. Miss, and you fall to the last checkpoint.
 5. Currency and height records accumulate as you climb; spend currency on leg upgrades to reach higher.
 
 ## The jump bar
 
+- **Taking the bar is a choice, not a toll.** Tapping Space takes the safe Okay jump and skips the bar entirely; holding opens it. This matters because Okay is 67% of a Perfect's distance while a main-line gap is 80% of one — so the safe jump *cannot clear the route*. It gets you around an island, onto a filler cloud, back from an overshoot. Every jump that actually gains you altitude is one you chose to hold for. The floor is generous; the ceiling is earned.
+- The bar is also a real risk: 38% of it is Weak, which is *worse* than the tap you gave up. Holding is only correct if you can hit the middle 62%, and only *profitable* if you can hit the middle 30% — which is the skill curve the whole game rests on.
 - Perfect: full jump arc (height + distance), plus a small bonus — e.g. a brief speed boost or a combo counter for consecutive perfects (cosmetic flex / leaderboard bragging rights, not a power spiral).
 - Good/Okay: reduced arc, still enough to reach *nearby* platforms, not the next tier up. Bad timing should be forgiving at low altitude and punishing at high altitude, by virtue of the platforms themselves being farther apart — not by changing the bar.
 - Weak/miss: fall.
 - **Takeoff presentation scales with strength**: higher Leg Level/Tier gives a more superhero-style launch — crouch wind-up, ground crater/shockwave, dust burst — instead of a plain jump. Purely cosmetic (doesn't affect jump quality or arc), but makes strength visibly readable to other players in the shared world, same as the leg-growth signal above.
 
 **Server authority (non-negotiable, same principle as prior projects):** the jump bar's sweep must be deterministic and tracked server-side per attempt (seeded, timestamped), and the server judges jump quality from *when* the client's input arrived — never from a client-reported accuracy value. This is the entire scoring mechanic for the game; if it's client-trusted, the game is trivially exploitable.
+
+## The tutorial, and Starter Legs
+
+Three jumps long, and its only real job is to hand over **Starter Legs** — a free pair that puts your jump height up **×10** (and your distance ×3.16; see Numbers §2 for why those differ).
+
+1. *Tap Space to jump.*
+2. *Now hold Space instead* — the bar opens, release to lock in.
+3. *Land a Perfect.* After five honest attempts it'll settle for a Good, because nobody should be stuck behind a 140 ms window before the game has started.
+
+Then the legs land, with a title card and a jump that suddenly goes ten times higher.
+
+**The point is that everything before the handover is deliberately feeble.** For those thirty seconds you jump like a vanilla Roblox character — 7 studs, barely off the ground, on an island 280 studs across. That's not a placeholder, it's the setup: the ×10 has to be something the player *felt* arrive, not a number they read. It also means the three things they need to know — tap is safe, hold is the bar, the middle is where the game is — get taught while the stakes are nothing.
+
+The steps advance on jumps **the server judged**, never on the client reporting progress. The reward is real power, so the steps are worth faking.
 
 ## Legs: two progression tracks
 
@@ -29,6 +45,7 @@ Roblox game: a vertical climbing game where the only way up is a timing-based ju
   - **Gravity scales with altitude.** Low islands add only a small amount over normal; higher islands stack it far more aggressively. So training is gated behind having climbed there first, not just behind currency, and each area's gravity doubles as its Leg Level cap band.
   - **Each area's gravity is tuned against the strength a player is expected to have when they arrive, so a training jump looks and feels roughly the same height at every altitude.** This is the point of the whole system: the training area is a treadmill that always feels like effort, because your growing legs are cancelled out the moment you step into it. The payoff is visible *outside* the pit — same legs, normal gravity, much bigger arc. It also means heavy gravity can never become unfun-sluggish at the top, since nobody experiences the top island's gravity with bottom island legs.
   - Because heavier gravity grants more Leg Level per jump, a player who has climbed higher trains faster — the reward for pushing your altitude is that everything below it becomes cheap.
+  - **Training gain scales with jump quality, not just jump count.** A pit's listed gain is what a *Perfect* earns; a tap earns a tenth of it. Since a tap skips the crouch and a played bar doesn't, this is what stops mindless spamming from being the optimal way to train — playing the bar well is the fastest route through a band, spamming is a slower but valid low-attention one, and half-playing it is worse than either. Same shape as the climb: the bar pays only if you can hit the middle.
   - Pacing target: each island should take roughly the same 3-5 minutes of active training to reach the next island's strength threshold. Achieved by keeping the jump count needed roughly constant per island (~40-60 training jumps) and scaling strength-per-jump with the area's gravity tier, rather than demanding more jumps at higher islands.
   - Same server-authority principle as the jump bar: the server owns which area a player is standing in, what gravity multiplier applies, and whether a training jump actually completed (left the ground, landed inside the area) — never a client-reported count or multiplier. A client that claims it's in the top island's pit while standing in the sand pit is the obvious exploit to close.
   - Implementation note (Roblox): `Workspace.Gravity` is global, so per-area gravity has to be faked per character — a downward `VectorForce`/`LinearVelocity` on the humanoid root plus a reduced `JumpPower` while inside the zone — applied server-side, cleared on exit and on death.
@@ -82,6 +99,9 @@ Two currencies, kept deliberately separate so power and vanity never compete for
 ## Decisions that are settled — don't relitigate without discussing first
 
 - Jump quality is judged server-side from input timing, never trusted from the client.
+- **A three-jump tutorial hands over free Starter Legs worth ×10 jump height.** Before it you jump like a vanilla character, on purpose, so the handover is felt rather than read. The lift is vertical only — height ×10, distance ×3.16 — which is what keeps the built island the right size to walk around.
+- Horizontal launch is damped to 35% inside a training pit: training is jumping on the spot, so a pit never has to be as wide as your reach.
+- **Tap to jump, hold for the bar.** A tap is a guaranteed Okay, fired instantly on release with no bar drawn; holding past the crouch opens the bar and releasing locks it in. The bar is opt-in, and taking it risks a Weak that's worse than the tap. The crouch wind-up is purely the threshold between the two, so the input has one timing rule, not two — and that holds inside training pits as well, where the crouch is now paid only by players who choose the bar. This means the pit crouch no longer paces training; see Numbers §4.2, which is an open balance question rather than a settled answer.
 - Falling returns the player to their last checkpoint, not to the ground.
 - Two separate progression tracks (skill-based training, currency-based upgrading) rather than one.
 - Training happens in high-gravity training areas located on islands, not on a separate ground-level course. Training is jumping under increased simulated gravity — there is no gym, no weight machines, and no click-to-do-reps mechanic.
@@ -101,6 +121,7 @@ Two currencies, kept deliberately separate so power and vanity never compete for
 - Servers are capped at 16 players, with 32 as a stretch target — worth raising if a prototype shows no major performance hit, but 16 is the safe baseline to ship with if it doesn't. Overflow beyond the cap routes players to a new server instance (standard Roblox behavior), not a queue.
 - If a new player enters a level during its forced-reposition warning or fade transition, they're caught in the swap along with everyone already there.
 - Training gains scale with the training area's gravity tier, so climbing higher makes training faster — not with input speed. The server decides which area a player is in and whether a training jump completed.
+- Training gains also scale with **jump quality**: a pit's listed gain is what a Perfect earns, a tap earns a tenth. Weights are steeper than the climbing trickle's (Numbers §4.2.1) because a tap skips the crouch and a played bar doesn't — at the climbing weights, spamming would out-train skilled play three to one.
 - The 1-hour occupied-timer for a stuck level resets instantly if the level becomes fully empty (all players leave); it only keeps counting up while at least one player remains in it continuously.
 - Legs visibly bulk up as Leg Level rises, and reset to baseline size on Leg Tier upgrade.
 - Jump takeoffs get progressively more superhero-style (crouch wind-up, crater/shockwave, dust) as strength rises. Cosmetic only — doesn't affect jump quality or arc.
