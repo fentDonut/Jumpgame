@@ -101,8 +101,37 @@ of 88.7).
 
 **Use the S the player is expected to hold on that level**, from Numbers §2.4 — level 1 is
 S = 1.00 (Starter Legs, nothing bought), level 2 is S = 1.11 (trained at the Packed Earth pit
-and wearing Cardboard Braces). Level 2 tuned for an untrained S = 1.02 arrival would need gaps
-about 20% shorter; it is deliberately gated on training instead.
+and wearing Cardboard Braces).
+
+---
+
+## 4.1 Gating a level against an under-levelled player
+
+A level that can be climbed without the upgrade it is meant to gate is the failure mode this
+section exists to prevent. Two facts make it easy to get wrong:
+
+- **Peak height is a hard ceiling.** `peak = 72·S²`, so an untrained S = 1.02 arrival tops out at
+  **74.9 studs** and a trained S = 1.11 at **88.7**. A hop that rises more than 74.9 is not "hard"
+  for the untrained player — it is *impossible*, at any horizontal distance.
+- **Horizontal gaps gate weakly.** At the same rise, untrained reach is about 80% of trained, so a
+  gap tuned to 80% of a trained Perfect only forces the untrained player into a flawless Perfect.
+  That is a soft gate, and a long field gives them many chances to find the one easy way through.
+
+**So gate on the two hops nobody can avoid: getting on, and getting off.** Put the lowest band a
+rise of ~80 above the lower island and the highest band ~77 below the upper one. Both sit in the
+window between the two peaks, so the untrained player cannot start *or* finish, whatever the
+middle of the field looks like. Everything between is then free to be as generous as it needs to be.
+
+Two things will quietly defeat this:
+
+- **Anything standable near an entry cloud is a free step up.** Island 2's tree canopies reach 431
+  — 31 studs above the grass — which turns an 80-stud entry hop into a 49-stud one. The canopies
+  are now non-collidable, which drops the island's highest standable point from 431 to 407.
+  Check every entry against a *fine* grid of the island's real surface (4-stud spacing); sampling
+  a dozen rays per candidate lets a canopy slip between them.
+- **The gate must be tested as reachability, not height.** A low crate 40 studs away is irrelevant,
+  because the rise from it is still beyond the untrained peak. Test whether an untrained player
+  standing there could actually make the jump.
 
 **Difficulty is reported as the easiest onward hop from each cloud, expressed as the jump quality
 it demands** — Good reaches 85% of a Perfect, Okay 67%, Weak 42% (Numbers §2.3). This is the
@@ -223,6 +252,17 @@ Every one of these was hit for real. They fail *quietly* — the build completes
   from a low cloud hits treetops and roofs, which are not places you can stand and jump from.
   Level 2 treats a cloud as a departure point only if it is inside the island's rim radius and
   within `maxRise` of its *surface altitude*.
+- **A `minRise` in the link model does not constrain the geometry.** Level 2's first build set
+  `minRise = 20` for its own reachability test, then let the fill drop clouds a few studs above
+  each other — so the *real* graph, which has no minimum, was a staircase of 15-stud steps that
+  anyone could walk up. Measured after the fact: 56% of hops rose under 40 studs and the median
+  easiest onward rise was **16**. Constrain the placement, not just the model.
+- **Pads make hops easier than a point-to-point test suggests.** Reachability subtracts ~20 studs
+  of pad slack at the two ends, so an exclusion rule that ignores it will happily place a pair the
+  player can actually jump between.
+- **Raycasts hit non-collidable parts.** Setting `CanCollide = false` on the tree canopies did not
+  remove them from the perch scan — `RaycastParams.RespectCanCollide` must be set to `true`, or
+  the probe keeps seeing geometry the player can no longer stand on.
 - **Training-pit rims — and anything else you walk over — must top out ≤ 1.6 studs above the
   surrounding surface.** The humanoid step limit is 2. Island 1's sand pit is the reference.
 - **A field can pass every connectivity rule and still be useless.** 35 clouds in a line satisfies
@@ -237,22 +277,23 @@ Every one of these was hit for real. They fail *quietly* — the build completes
 |---|---|---|
 | Altitudes | 0 → 400 | 400 → 950 |
 | Design S | 1.00 | 1.11 |
-| Landable clouds | 125 | 170 |
-| Scenery clouds | 478 | 518 |
+| Layout | free scatter | **banded** (see §4.1) |
+| Landable clouds | 125 | 154 |
+| Scenery clouds | 472 | 600 |
 | Traps / orphans | 0 / 0 | 0 / 0 |
-| Reachable from below | 125 of 125 | 170 of 170 |
-| Departure points | 25 | 13 |
-| Clouds reaching the island above | 9 | 14 |
-| Distinct routes | 275 | 194,864 |
-| Clouds offering a choice | 38 | 122 |
-| Easiest onward hop | Weak 81 · Okay 31 · Good 13 · Perfect 0 | Weak 132 · Okay 35 · Good 3 · Perfect 0 |
-| Vertical / radial span | y 45–381, r 34–211 | y 442–928, r 20–231 |
-| Min separation | 28 | 34 (sparser, per the design doc) |
+| Reachable from below | 125 of 125 | 154 of 154 |
+| Departure points | 25 | 6 |
+| Clouds reaching the island above | 9 | 12 |
+| Distinct routes | 275 | >1,000,000 |
+| Clouds offering a choice | 38 | 117 |
+| Climbing hop: shortest / median / longest | — | 39 / 48 / 58 |
+| Vertical / radial span | y 45–381, r 34–211 | y 477–876, r ≤300 |
+| **Gated against an untrained arrival** | no, by design | **yes — 0 clouds reachable at S = 1.02** |
 
 Plus 85 small scenery clouds in `World.Clouds` around island 1.
 
-Level 2 is looser than level 1 despite longer hops, because the lighter fall stretches reach
-by 1.32× — the gaps grew but the reach grew more.
+**Level 1 is deliberately ungated** — a player with Starter Legs and nothing else must be able
+to climb it. Level 2 onward should be gated, and §4.1 is how.
 
 **Deviations from Numbers §7.2 worth knowing.** That table specifies level 1 as ten hops of 41
 studs rise and 25 studs gap, with clouds Ø38 (150% of the gap). The field departs from it: rises
@@ -292,9 +333,12 @@ Physics is in §4, lobe geometry in §7. The rest:
 | Lower / upper altitude | 0 → 400 | 400 → 950 |
 | Upper rim radius | 82 | 82 |
 | Upper keel `{y, radius}` | `{400,82} {391,83} {375,77} {355,65} {333,49} {311,31} {295,13} {286,0}` | same shape at +550 |
-| Play volume | radius 252, y 46–382 | radius 240, y 442–928 |
-| Hop limits | rise 16–68, margin 5 | rise 20–76, margin 5 |
-| Separation | 28 (24 when repairing) | 34 (28 when repairing) |
+| Play volume | radius 252, y 46–382 | radius 300, y 477–876 |
+| Hop limits | rise 16–68, margin 5 | margin 5; band spacing sets the rise |
+| Bands | none (free scatter) | 9, at y 480, 525, 577, 623, 672, 722, 768, 816, 873; spacing 45–53, ±3 jitter |
+| Band populations | — | 6 / 12 / 18 / 24 / 26 / 24 / 18 / 14 / 12 |
+| Gate hops | none | entry 80 studs, island 77 — both above the 74.9 untrained peak |
+| Separation | 28 (24 when repairing) | 34 |
 | Keel clearance | 20 studs outside `keelRadius(y)` | same |
 | Skeleton entries (bearing°, radius) | (6,74) (87,74) (126,86) (219,90) (276,90) | (25,52) (100,44) (170,60) (245,50) (315,58) |
 | Skeleton walk | 11 steps, rise 30–46, gap 17–24 | 11 steps, rise 38–56, gap 26–38 |
@@ -332,6 +376,12 @@ rule and still be useless — 35 clouds in a line passes "no traps" trivially.
 | Ground entries | ≥ the configured floor |
 | Clouds reaching the upper island | ≥ the configured floor |
 | Clouds offering a choice | ≥ 10% of the field |
+| **Shortest *climbing* hop** | **≥ the band spacing, ignoring sub-10-stud lateral moves** |
+| **Clouds reachable by an under-levelled player** (gated levels) | **0** |
+
+The last two are the ones that were missing, and both need measuring against the *real* graph
+with no artificial minimum rise. For the gate, run the whole reachability search a second time
+with the untrained model and confirm it reaches nothing: entries, clouds and launch points all zero.
 
 Also report, for eyeballing rather than gating: distinct route count, the difficulty histogram
 (Weak / Okay / Good / Perfect), mean standable radius, and x/z spread.
