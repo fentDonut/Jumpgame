@@ -68,25 +68,41 @@ Two supporting pieces make it work:
 
 ## 4. Physics
 
-Everything derives from one formula (Numbers §2, Starter Legs at S = 1.00):
+**The arc is asymmetric** (Numbers §1): it rises at 392.4 and falls at 147.2, the difference held
+up by a client-side `VectorForce`. There is no single gravity value, so the old symmetric
+`reach = Vx·(Vy + √(Vy² − 2g·rise))/g` no longer applies — **derive reach from the two halves
+separately, or every gap in the level will be wrong.**
+
+Launch is derived from a target *peak height*, so peak is fixed by S and does not move when
+gravity does:
 
 ```
-Vy = 53.2 × √10 = 168.2      Vx = 22.0      g = 196.2
+peak   = 72 · S²            g_rise = 392.4      g_fall = 147.2
+Vy     = √(2 · g_rise · peak)
+t_rise = Vy / g_rise
+Vx     = 31.14 · S          -- calibrated so flat reach reproduces Numbers' 49.7·S²
 
-reach(rise) = Vx · (Vy + √(Vy² − 2g·rise)) / g
+reach(rise) = Vx · ( t_rise + √( 2·(peak − rise) / g_fall ) )     for rise < peak
 ```
 
-| Rise | Perfect reach |
-|---|---|
-| 16 | 35.3 |
-| 30 | 33.5 |
-| 41 | 31.3 |
-| 55 | 28.2 |
-| 68 | 24.6 |
+| Rise | Level 1 reach (S = 1.00, peak 72) | Level 2 reach (S = 1.11, peak 88.7) |
+|---|---|---|
+| 20 | 46.7 | 56.6 |
+| 30 | 43.7 | 54.1 |
+| 41 | 39.8 | 51.9 |
+| 48 | 36.9 | 48.9 |
+| 65 | 26.9 | 42.9 |
+| 76 | — | 37.6 |
 
 A hop is legal when `horizontalDistance − padSlack ≤ reach(rise) − margin`, with `margin = 5`
-studs demanded on every hop and `rise` constrained to 16–68 (below 16 it isn't a climb; the
-Perfect peak is 75, so 68 leaves headroom).
+studs demanded on every hop, and `rise` constrained to `[minRise, maxRise]` — below `minRise` it
+isn't a climb, and `maxRise` must sit clearly under `peak` (level 2 uses 20–76 against a peak
+of 88.7).
+
+**Use the S the player is expected to hold on that level**, from Numbers §2.4 — level 1 is
+S = 1.00 (Starter Legs, nothing bought), level 2 is S = 1.11 (trained at the Packed Earth pit
+and wearing Cardboard Braces). Level 2 tuned for an untrained S = 1.02 arrival would need gaps
+about 20% shorter; it is deliberately gated on training instead.
 
 **Difficulty is reported as the easiest onward hop from each cloud, expressed as the jump quality
 it demands** — Good reaches 85% of a Perfect, Okay 67%, Weak 42% (Numbers §2.3). This is the
@@ -198,6 +214,15 @@ Every one of these was hit for real. They fail *quietly* — the build completes
   starting inside a tree canopy skips it and reports the ground far below as clearance.
 - **Terrain probes must exclude every cloud folder in the place**, or a leftover field is mistaken
   for ground.
+- **Building level N+1 puts its playable volume where level N's scenery already is.** Level 1's
+  scenery pass ran with nothing above it and filled `r < 272, y 402–900` — exactly where level 2
+  goes. Clear the lower level's decor out of the new field before generating, or you ship
+  non-collidable clouds that look identical to landable ones. Both fields now assert zero
+  intrusions in either direction.
+- **Entries onto a sky island must be measured from its grass, not from a raycast.** A ray down
+  from a low cloud hits treetops and roofs, which are not places you can stand and jump from.
+  Level 2 treats a cloud as a departure point only if it is inside the island's rim radius and
+  within `maxRise` of its *surface altitude*.
 - **Training-pit rims — and anything else you walk over — must top out ≤ 1.6 studs above the
   surrounding surface.** The humanoid step limit is 2. Island 1's sand pit is the reference.
 - **A field can pass every connectivity rule and still be useless.** 35 clouds in a line satisfies
@@ -206,21 +231,28 @@ Every one of these was hit for real. They fail *quietly* — the build completes
 
 ---
 
-## 10. Current state (2026-08-06)
+## 10. Current state (2026-08-09)
 
-| | |
-|---|---|
-| Landable clouds | 125 (632 solid lobes) |
-| Scenery clouds | 501 in `SkyRoute.Level1.Decor`, plus 85 in `World.Clouds` around island 1 |
-| Traps / orphans | 0 / 0 |
-| Reachable from the ground | 125 of 125 |
-| Ground entries | 25 |
-| Clouds reaching island 2 | 9 |
-| Distinct routes | 275 |
-| Clouds offering a choice | 38 |
-| Easiest onward hop | Weak 81 · Okay 31 · Good 13 · Perfect 0 |
-| Mean standable radius | 13.7 studs |
-| x/z spread | radius 34–211 |
+| | Level 1 (island 1 → 2) | Level 2 (island 2 → 3) |
+|---|---|---|
+| Altitudes | 0 → 400 | 400 → 950 |
+| Design S | 1.00 | 1.11 |
+| Landable clouds | 125 | 170 |
+| Scenery clouds | 478 | 518 |
+| Traps / orphans | 0 / 0 | 0 / 0 |
+| Reachable from below | 125 of 125 | 170 of 170 |
+| Departure points | 25 | 13 |
+| Clouds reaching the island above | 9 | 14 |
+| Distinct routes | 275 | 194,864 |
+| Clouds offering a choice | 38 | 122 |
+| Easiest onward hop | Weak 81 · Okay 31 · Good 13 · Perfect 0 | Weak 132 · Okay 35 · Good 3 · Perfect 0 |
+| Vertical / radial span | y 45–381, r 34–211 | y 442–928, r 20–231 |
+| Min separation | 28 | 34 (sparser, per the design doc) |
+
+Plus 85 small scenery clouds in `World.Clouds` around island 1.
+
+Level 2 is looser than level 1 despite longer hops, because the lighter fall stretches reach
+by 1.32× — the gaps grew but the reach grew more.
 
 **Deviations from Numbers §7.2 worth knowing.** That table specifies level 1 as ten hops of 41
 studs rise and 25 studs gap, with clouds Ø38 (150% of the gap). The field departs from it: rises
@@ -230,9 +262,11 @@ forgiving — now measured directly as the difficulty histogram instead of as a 
 
 ---
 
-## 11. Extending to level 2 and beyond
+## 11. Extending to level 3 and beyond
 
-Everything is parameterised on the two islands the level spans. For level *N*:
+Levels 1 and 2 are built; §12 lists both side by side, which is the easiest way to see which
+knobs move with altitude. Everything is parameterised on the two islands the level spans.
+For level *N*:
 
 - **Upper island altitude, rim radius and keel profile** — from the island above
 - **`yMin`** — just above the island below
@@ -249,29 +283,36 @@ just its position.
 
 ---
 
-## 12. Every parameter, as built for level 1
+## 12. Every parameter, as built
 
-Physics is in §4, band quotas in §6, lobe geometry in §7. The rest:
+Physics is in §4, lobe geometry in §7. The rest:
 
-| Group | Value |
-|---|---|
-| Upper island | altitude 400, rim radius 82 |
-| Upper island keel `{y, radius}` | `{400,82} {391,83} {375,77} {355,65} {333,49} {311,31} {295,13} {286,0}` |
-| Play volume | field radius 252, y from 46 to 382 |
-| Hop limits | rise 16–68, reach margin 5 studs |
-| Separation | 28 studs during generation, 24 when repairing |
-| Keel clearance | 20 studs outside `keelRadius(y)` |
-| Skeleton entries (bearing°, radius) | (6, 74) (87, 74) (126, 86) (219, 90) (276, 90) |
-| Skeleton walk | 11 steps, rise 30–46, gap 17–24, heading turn ±1.15 rad, fork p = 0.4 up to step 8, max 10 strands, 40 placement attempts per step |
-| Skeleton bound | radius ≤ 0.78 × field radius, except the last two steps which steer to radius 112 then 100 |
-| Random fill | cap 288, 6 passes × 900 attempts, uniform over the whole disc |
-| Density neighbourhood | 62 studs |
-| Floors | ≥ 9 clouds reaching the upper island, ≥ 16 ground entries |
-| Cloud diameter | 19–29 landable, 10–40 scenery |
-| Surface probe | 14 rings × 12 azimuths, ring spacing 1.8 studs; standable = within 2.5 studs of the crown |
-| Repair search | dy ∈ {0, −6, −12, +6, −18} × 12 azimuths × dr ∈ {4, 8, 12, 16}, 3 rounds |
-| Scenery | 780 attempts, radius 150–1250, y −120 to 900, keep 52% inside radius 420 and 74% beyond, excluded from the play volume and from under the upper island |
-| Ground clearance | 14 studs, checked for any cloud below y = 120 |
+| Group | Level 1 | Level 2 |
+|---|---|---|
+| Lower / upper altitude | 0 → 400 | 400 → 950 |
+| Upper rim radius | 82 | 82 |
+| Upper keel `{y, radius}` | `{400,82} {391,83} {375,77} {355,65} {333,49} {311,31} {295,13} {286,0}` | same shape at +550 |
+| Play volume | radius 252, y 46–382 | radius 240, y 442–928 |
+| Hop limits | rise 16–68, margin 5 | rise 20–76, margin 5 |
+| Separation | 28 (24 when repairing) | 34 (28 when repairing) |
+| Keel clearance | 20 studs outside `keelRadius(y)` | same |
+| Skeleton entries (bearing°, radius) | (6,74) (87,74) (126,86) (219,90) (276,90) | (25,52) (100,44) (170,60) (245,50) (315,58) |
+| Skeleton walk | 11 steps, rise 30–46, gap 17–24 | 11 steps, rise 38–56, gap 26–38 |
+| Walk shape | heading turn ±1.15 rad, fork p = 0.4 to step 8, max 10 strands, 40 attempts per step | same, fork p = 0.42, turn ±1.1 |
+| Skeleton bound | r ≤ 0.78 × field radius; last two steps steer to 112 then 100 | same; steer to 126 then 108 |
+| Random fill | cap 288, 6 × 900 attempts, uniform over the whole disc | cap 300, 6 × 1100 |
+| Density neighbourhood | 62 | 75 |
+| Band quotas (radius : keep) | 0–70:11, 70–110:26, 110–165:76, 165–195:11, 195+:1 | 0–70:10, 70–115:24, 115–175:78, 175–210:18, 210+:4 |
+| Floors | ≥ 9 tops, ≥ 16 entries | ≥ 9 tops, ≥ 12 entries |
+| Cloud diameter | 19–29 landable, 10–40 scenery | 20–30 landable, 10–40 scenery |
+| Surface probe | 14 rings × 12 azimuths, spacing 1.8; standable = within 2.5 of the crown | same, spacing 1.9 |
+| Repair search | dy ∈ {0,−6,−12,+6,−18} × 12 azimuths × dr ∈ {4,8,12,16}, 3 rounds | dy ∈ {0,−8,−16,+8,−24} × 12 × dr ∈ {6,12,18,24} |
+| Scenery | 780 attempts, r 150–1250, y −120–900, keep 52% inside r 420 / 74% beyond | 520 attempts, r 255–1150, y 410–1010 |
+| Ground clearance | 14 studs, checked below y = 120 | 14 studs, checked below y = 500 |
+
+Level 2 needed four extra departure clouds hand-placed over island 2's open ground after the
+main pass came up one short of the entry floor — the entry test is strict (inside the rim
+radius, on grass rather than a treetop) so the random fill rarely satisfies it.
 
 ---
 
