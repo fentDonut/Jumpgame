@@ -153,7 +153,7 @@ the same "horizontal gaps gate weakly" argument as above, applied to the interio
 | 1 | 1.00 | 60.9 | — | nothing to gate; S = 1.00 *is* the design strength |
 | 2 | 1.11 | 75.1 | 72 → 75.1 | 3.1 studs — **exactly one configuration fits**, see below |
 | 3 | 1.20 | 87.8 | 72 → 87.8 | 15.8 studs — comfortable |
-| 4 | 1.32 | 106.2 | 72 → 106.2 | 34.2 studs |
+| 4 | 1.32 | 106.2 | 72 → 106.2 | 34.2 studs — **built; band count was a free choice** |
 | 6 | 1.61 | 158.0 | 72 → 158.0 | 86.0 studs |
 
 **Level 2's band count is not a choice.** Three constraints have to hold at once — the entry must
@@ -366,26 +366,26 @@ Every one of these was hit for real. They fail *quietly* — the build completes
 
 ---
 
-## 10. Current state (2026-08-11)
+## 10. Current state (2026-08-12)
 
-| | Level 1 (island 1 → 2) | Level 2 (island 2 → 3) | Level 3 (island 3 → 4) |
-|---|---|---|---|
-| Altitudes | 0 → 400 | 400 → 950 | 950 → 1600 |
-| Design S | 1.00 | 1.11 | 1.20 |
-| Layout | free scatter | **banded**, 6 bands | **banded**, 7 bands |
-| Landable clouds | 125 | 130 | 114 |
-| Scenery clouds | 470 | 600 | 430 |
-| Traps / orphans | 0 / 0 | 0 / 0 | 0 / 0 |
-| Reachable from below | 125 of 125 | 130 of 130 | 114 of 114 |
-| Departure points | 25 | 17 | 12 |
-| Clouds reaching the island above | 9 | 13 | 14 |
-| Distinct routes | 275 | — | ~430,000,000 |
-| Clouds offering a choice | 38 | 117 (90%) | 103 (90%) |
-| Climbing hop: shortest / median / longest | — | 74.7 / 74.7 / 74.8 | 73.2 / 76.2 / 79.0 |
-| Hops island to island | — | 7 | 8 |
-| Vertical / radial span | y 21–409, r 34–211 | y 489–862, r ≤172 | y 1047–1507, r 46–187 |
-| **Gated against an untrained arrival** | no, by design | **yes — 0 clouds reachable at S = 1.02** | **yes — 0 clouds reachable at S = 1.11** |
-| **Middle gated against starter legs** | no, by design | **yes — 0 of 289 cross-band hops, 0 of 5 band steps** | **yes — 0 of 236 cross-band hops, 0 of 6 band steps** |
+| | Level 1 (island 1 → 2) | Level 2 (island 2 → 3) | Level 3 (island 3 → 4) | Level 4 (island 4 → 5) |
+|---|---|---|---|---|
+| Altitudes | 0 → 400 | 400 → 950 | 950 → 1600 | 1600 → 2500 |
+| Design S | 1.00 | 1.11 | 1.20 | 1.32 |
+| Layout | free scatter | **banded**, 6 bands | **banded**, 7 bands | **banded**, 8 bands |
+| Landable clouds | 125 | 130 | 114 | 113 |
+| Scenery clouds | 470 | 600 | 430 | 400 |
+| Traps / orphans | 0 / 0 | 0 / 0 | 0 / 0 | 0 / 0 |
+| Reachable from below | 125 of 125 | 130 of 130 | 114 of 114 | 113 of 113 |
+| Departure points | 25 | 17 | 12 | 12 |
+| Clouds reaching the island above | 9 | 13 | 14 | 10 |
+| Distinct routes | 275 | — | ~430,000,000 | ~708,000,000 |
+| Clouds offering a choice | 38 | 117 (90%) | 103 (90%) | 104 (92%) |
+| Climbing hop: shortest / median / longest | — | 74.7 / 74.7 / 74.8 | 73.2 / 76.2 / 79.0 | 89.2 / 95.0 / 100.9 |
+| Hops island to island | — | 7 | 8 | 9 |
+| Vertical / radial span | y 21–409, r 34–211 | y 489–862, r ≤172 | y 1047–1507, r 46–187 | y 1716–2386, r 50–207 |
+| **Gated against an untrained arrival** | no, by design | **yes — 0 clouds reachable at S = 1.02** | **yes — 0 clouds reachable at S = 1.11** | **yes — 0 clouds reachable at S = 1.20** |
+| **Middle gated against starter legs** | no, by design | **yes — 0 of 289 cross-band hops, 0 of 5 band steps** | **yes — 0 of 236 cross-band hops, 0 of 6 band steps** | **yes — 0 of 235 cross-band hops, 0 of 7 band steps** |
 
 **Level 3 is sparser than level 2 on purpose** — 114 clouds against 130, over a taller span
 (650 studs against 550) and with slightly longer hops (median rise 76.2 against 74.7). The gap
@@ -397,6 +397,15 @@ length, and it will widen again at level 4 where the window opens to 34 studs.
 **Level 3's difficulty histogram**, by the easiest onward *cloud* hop: Weak 12, Okay 53, Good 44,
 Perfect 0, and 5 clouds whose only exit is the island hop itself. Level 1 is "mostly Weak and
 Okay"; level 3 has shifted decisively toward Okay/Good, which is the curve doing what it should.
+Level 4 sits at Weak 16, Okay 50, Good 43, Perfect 0, exempt 4 — near-identical, which is the
+right shape: the *demand* rises with the design strength, so the quality asked of the player
+stays roughly constant while the distances grow.
+
+**Level 4 is where the §4.1.1 rule stops being a squeeze.** Its rise window is 34.2 studs wide
+against level 3's 15.8 and level 2's 3.1, so the band count was a genuine choice (7, 8 or 9
+intervals all fit) rather than the single option level 2 allows. It took 8 bands at 95 with ±3
+jitter — the first level since level 1 to carry the doc's original jitter — and passed all twelve
+checks on the first build with one repair move.
 
 Plus 85 small scenery clouds in `World.Clouds` around island 1.
 
@@ -425,10 +434,10 @@ at all — §4.1.1 shows it is the only one that fits.
 
 ---
 
-## 11. Extending to level 4 and beyond
+## 11. Extending to level 5 and beyond
 
-Levels 1, 2 and 3 are built; §12 lists all three side by side, which is the easiest way to see
-which knobs move with altitude. Everything is parameterised on the two islands the level spans.
+Levels 1–4 are built; §12 lists all four side by side, which is the easiest way to see which knobs
+move with altitude. Everything is parameterised on the two islands the level spans.
 For level *N*:
 
 - **Upper island altitude, rim radius and keel profile** — from the island above
@@ -458,34 +467,34 @@ just its position.
 
 Physics is in §4, lobe geometry in §7. The rest:
 
-| Group | Level 1 | Level 2 | Level 3 |
-|---|---|---|---|
-| Lower / upper altitude | 0 → 400 | 400 → 950 | 950 → 1600 |
-| Upper rim radius | 82 | 82 | **71.9** (island 4 is Ø140) |
-| Upper keel `{y, radius}` | `{400,82} {391,83} {375,77} {355,65} {333,49} {311,31} {295,13} {286,0}` | same shape at +550 | `{1569,75} {1551,62} {1532,48} {1516,33} {1505,24} {1494,4} {1483,2}` — island 3's keel scaled ×0.875 |
-| Play volume | radius 252, y 21–409 | radius 300 (occupied ≤172), y 489–862 | radius 300 (occupied 46–187), y 1047–1507 |
-| Hop limits | rise 16–68, margin 5 | margin 5; band spacing sets the rise | same as level 2 |
-| Bands | none (free scatter) | **6**, at y 488.3, 563.0, 637.7, 712.4, 787.1, 861.8; spacing **74.7**, **zero jitter** | **7**, at y 1048, 1124.2, 1200.3, 1276.5, 1352.7, 1428.8, 1505; spacing **76.2**, **±1.5 jitter** |
-| Why that spacing | — | **§4.1.1**: the only band count that fits; window is 0.57 studs so all three margins balance at 0.41 | **§4.1.1**: min rise 73.2 > S=1.00's 72-stud peak; max 79.2 < a design Good's 87.8 |
-| Band populations | — | 20 / 24 / 26 / 24 / 22 / 14 | target 14/17/19/19/18/16/14; **built 114 total** |
-| Gate hops | none | entry **88.3** from the grass (81.3 from the knoll), island **88.2** — both above the 74.91 untrained peak | entry **92**, island **93** — both above the **88.71** untrained peak (S = 1.11) |
-| Middle gate | none | **every cross-band rise 74.65–74.75**, above S=1.00's hard ceiling | **every cross-band rise ≥ 73.2**, above S=1.00's hard ceiling |
-| Margin slack | — | **0.41 studs on all three gates — rigid, see §4.1.1** | 1.1–2.7 studs |
-| Separation | 28 (24 when repairing) | 36 (28 when repairing) | 38 (30 when repairing) |
-| Keel clearance | 20 studs outside `keelRadius(y)` | same | top band pinned to r ≥ 76, i.e. outside island 4's plan footprint entirely |
-| Skeleton entries (bearing°, radius) | (6,74) (87,74) (126,86) (219,90) (276,90) | (25,52) (100,44) (170,60) (245,50) (315,58) | (15,54) (88,46) (162,58) (238,50) (310,60) |
-| Skeleton walk | 11 steps, rise 30–46, gap 17–24 | 5 steps (one per band gap), gap 24–38 | 6 steps (one per band gap), gap 26–42 |
-| Walk shape | heading turn ±1.15 rad, fork p = 0.4 to step 8, max 10 strands, 40 attempts per step | same, fork p = 0.42, turn ±1.1 | same as level 2, 60 attempts per step, fork to band 7 |
-| Skeleton bound | r ≤ 0.78 × field radius; last two steps steer to 112 then 100 | same; steer to 126 then 108 | last two steps steer to 118 then 96 |
-| Random fill | cap 288, 6 × 900 attempts, uniform over the whole disc | per-band targets, 6 passes × 1400 attempts per band | per-band targets, 6 passes × 900 attempts per band |
-| Density neighbourhood | 62 | — (radial quotas applied at sampling) | — (radial quotas applied at sampling) |
-| Band quotas (radius : keep) | 0–70:11, 70–110:26, 110–165:76, 165–195:11, 195+:1 | 0–70:10, 70–115:24, 115–175:72, 175–210:18, 210–300:4 | 0–75:9, 75–125:24, 125–195:74, 195–240:16, 240–300:4 |
-| Floors | ≥ 9 tops, ≥ 16 entries | ≥ 9 tops, ≥ 12 entries | ≥ 9 tops, ≥ 9 entries |
-| Cloud diameter | 19–29 landable, 10–40 scenery | 20–30 landable, 10–40 scenery | 22–32 landable, 10–40 scenery |
-| Surface probe | 14 rings × 12 azimuths, spacing 1.8; standable = within 2.5 of the crown | same, spacing 1.9 | same, spacing 2.0 (measured usable radius 6–12, mean 8.2) |
-| Repair search | dy ∈ {0,−6,−12,+6,−18} × 12 azimuths × dr ∈ {4,8,12,16}, 3 rounds | **horizontal only** — dr ∈ {5,9,13,17,21,25,29} × 16 azimuths, 4 rounds | **horizontal only** — dr ∈ {6,10,14,18,22,26,30} × 16 azimuths, 4 rounds (see §9) |
-| Scenery | 780 attempts, r 150–1250, y −120–900, keep 52% inside r 420 / 74% beyond | 520 attempts, r 255–1150, y 410–1010 | 5200 attempts, r 276–1150, y 1000–1780, keep 52% inside r 520 / 74% beyond |
-| Ground clearance | 14 studs, checked below y = 120 | 14 studs, checked below y = 500 | n/a — nothing below level 3 but island 3 |
+| Group | Level 1 | Level 2 | Level 3 | Level 4 |
+|---|---|---|---|---|
+| Lower / upper altitude | 0 → 400 | 400 → 950 | 950 → 1600 | 1600 → 2500 |
+| Upper rim radius | 82 | 82 | **71.9** (island 4 is Ø140) | **72** (island 5 is Ø140) |
+| Upper keel `{y, radius}` | `{400,82} {391,83} {375,77} {355,65} {333,49} {311,31} {295,13} {286,0}` | same shape at +550 | `{1569,75} {1551,62} {1532,48} {1516,33} {1505,24} {1494,4} {1483,2}` — island 3's keel scaled ×0.875 | same shape at +900 |
+| Play volume | radius 252, y 21–409 | radius 300 (occupied ≤172), y 489–862 | radius 300 (occupied 46–187), y 1047–1507 | radius 320 (occupied 50–207), y 1716–2386 |
+| Hop limits | rise 16–68, margin 5 | margin 5; band spacing sets the rise | same as level 2 | same as level 2 |
+| Bands | none (free scatter) | **6**, at y 488.3, 563.0, 637.7, 712.4, 787.1, 861.8; spacing **74.7**, **zero jitter** | **7**, at y 1048, 1124.2, 1200.3, 1276.5, 1352.7, 1428.8, 1505; spacing **76.2**, **±1.5 jitter** | **8**, at y 1718, 1813, 1908, 2003, 2098, 2193, 2288, 2383; spacing **95**, **±3 jitter** |
+| Why that spacing | — | **§4.1.1**: the only band count that fits; window is 0.57 studs so all three margins balance at 0.41 | **§4.1.1**: min rise 73.2 > S=1.00's 72-stud peak; max 79.2 < a design Good's 87.8 | **§4.1.1**, but freely: the window is 34.2 wide so 7, 8 and 9 intervals all fit; 8 chosen for pacing |
+| Band populations | — | 20 / 24 / 26 / 24 / 22 / 14 | target 14/17/19/19/18/16/14; **built 114 total** | 13 / 15 / 16 / 16 / 15 / 14 / 13 / 11 |
+| Gate hops | none | entry **88.3** from the grass (81.3 from the knoll), island **88.2** — both above the 74.91 untrained peak | entry **92**, island **93** — both above the **88.71** untrained peak (S = 1.11) | entry **118** from island 4's grass (109.6 from its highest deck), island **117** — both above the **103.68** untrained peak (S = 1.20) |
+| Middle gate | none | **every cross-band rise 74.65–74.75**, above S=1.00's hard ceiling | **every cross-band rise ≥ 73.2**, above S=1.00's hard ceiling | **every cross-band rise 89.2–100.9**, above S=1.00's hard ceiling |
+| Margin slack | — | **0.41 studs on all three gates — rigid, see §4.1.1** | 1.1–2.7 studs | 5.9–23 studs |
+| Separation | 28 (24 when repairing) | 36 (28 when repairing) | 38 (30 when repairing) | 42 (32 when repairing) |
+| Keel clearance | 20 studs outside `keelRadius(y)` | same | top band pinned to r ≥ 76, i.e. outside island 4's plan footprint entirely | same, r ≥ 76 outside island 5 |
+| Skeleton entries (bearing°, radius) | (6,74) (87,74) (126,86) (219,90) (276,90) | (25,52) (100,44) (170,60) (245,50) (315,58) | (15,54) (88,46) (162,58) (238,50) (310,60) | (20,58) (75,50) (130,62) (185,54) (240,60) (300,52) — **6 strands** |
+| Skeleton walk | 11 steps, rise 30–46, gap 17–24 | 5 steps (one per band gap), gap 24–38 | 6 steps (one per band gap), gap 26–42 | 7 steps (one per band gap), gap 32–50 |
+| Walk shape | heading turn ±1.15 rad, fork p = 0.4 to step 8, max 10 strands, 40 attempts per step | same, fork p = 0.42, turn ±1.1 | same as level 2, 60 attempts per step, fork to band 7 | fork p = 0.45 to band 6, max 12 strands, 90 attempts × 3 separation fallbacks (42 → 34 → 30) |
+| Skeleton bound | r ≤ 0.78 × field radius; last two steps steer to 112 then 100 | same; steer to 126 then 108 | last two steps steer to 118 then 96 | last two steps steer into **ranges** (110–155, then 84–124) rather than a fixed radius |
+| Random fill | cap 288, 6 × 900 attempts, uniform over the whole disc | per-band targets, 6 passes × 1400 attempts per band | per-band targets, 6 passes × 900 attempts per band | per-band targets, **4 rounds of (5 passes × 1600) interleaved with prune** |
+| Density neighbourhood | 62 | — (radial quotas applied at sampling) | — (radial quotas applied at sampling) | — (radial quotas applied at sampling) |
+| Band quotas (radius : keep) | 0–70:11, 70–110:26, 110–165:76, 165–195:11, 195+:1 | 0–70:10, 70–115:24, 115–175:72, 175–210:18, 210–300:4 | 0–75:9, 75–125:24, 125–195:74, 195–240:16, 240–300:4 | 0–80:8, 80–130:22, 130–205:68, 205–255:14, 255–320:4 |
+| Floors | ≥ 9 tops, ≥ 16 entries | ≥ 9 tops, ≥ 12 entries | ≥ 9 tops, ≥ 9 entries | ≥ 9 tops, ≥ 9 entries |
+| Cloud diameter | 19–29 landable, 10–40 scenery | 20–30 landable, 10–40 scenery | 22–32 landable, 10–40 scenery | 24–34 landable, 10–42 scenery |
+| Surface probe | 14 rings × 12 azimuths, spacing 1.8; standable = within 2.5 of the crown | same, spacing 1.9 | same, spacing 2.0 (measured usable radius 6–12, mean 8.2) | **15 rings**, spacing 2.1 (measured usable 6.3–12.6, mean 8.5) |
+| Repair search | dy ∈ {0,−6,−12,+6,−18} × 12 azimuths × dr ∈ {4,8,12,16}, 3 rounds | **horizontal only** — dr ∈ {5,9,13,17,21,25,29} × 16 azimuths, 4 rounds | **horizontal only** — dr ∈ {6,10,14,18,22,26,30} × 16 azimuths, 4 rounds (see §9) | **horizontal only** — dr ∈ {6,…,34} × 16 azimuths, 4 rounds (only 1 move needed) |
+| Scenery | 780 attempts, r 150–1250, y −120–900, keep 52% inside r 420 / 74% beyond | 520 attempts, r 255–1150, y 410–1010 | 5200 attempts, r 276–1150, y 1000–1780, keep 52% inside r 520 / 74% beyond | 6000 attempts, r 262–1250, y 1620–2760, keep 52% inside r 560 / 74% beyond |
+| Ground clearance | 14 studs, checked below y = 120 | 14 studs, checked below y = 500 | n/a — nothing below level 3 but island 3 | n/a |
 
 Level 2 needed four extra departure clouds hand-placed over island 2's open ground after the
 main pass came up one short of the entry floor — the entry test is strict (inside the rim

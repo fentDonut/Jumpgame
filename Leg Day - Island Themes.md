@@ -53,7 +53,7 @@ A cracked terracotta plateau split into big flat plates. Everything built on it 
 - **Cache:** under a stilt pavilion with a hanging lantern.
 - **Underside:** clay strata and dangling root mats.
 
-## 3. Island 5 — The Springworks
+## 3. Island 5 — The Springworks — **BUILT 2026-08-12**
 
 | | |
 |---|---|
@@ -61,6 +61,19 @@ A cracked terracotta plateau split into big flat plates. Everything built on it 
 | Diameter / Altitude | 140 / 2500 |
 | Pit gravity | ×2.8 |
 | Palette | Black glitter sand, storm grey-blue, one saturated paint colour on the springs |
+
+> **As built:** 904 parts. Ground and keel cloned from island 3 and rescaled ×0.875 into cold iron
+> strata, with a `KeelFill` from the outset (0% of radial sightlines escape). Surface is `Sand`
+> material rather than the clay's `SmoothPlastic`, with 7 low wind drifts and 131 near-black
+> metal glints at 0.55 reflectance — the glints are what make it read as iron sand rather than ash.
+> **9 coils** generated as helices of chord segments: one Ø25 laid on its side and half-sunk at
+> (16, 32), 2 medium tilted like fossils, 6 small upright and mostly buried. Iron Sand pit at
+> (−26, −18), Ø40 zone, with 8 more coils standing upright around the rim leaning inward. Medal
+> cache nested inside the big coil, so you step through the spring to reach it. Reached by the
+> [level 4 cloud field](Leg%20Day%20-%20Cloud%20Field.md) (113 clouds, 8 bands).
+>
+> The theme's "one saturated paint colour" is doing real work: at 43% surface occupancy the island
+> would read as an empty black disc without the orange, which is the only warm hue above island 4.
 
 Black magnetic iron sand, glittering where the light catches it. Giant painted coil springs lie half-buried across the island like fossils; a few still bounce gently on their own. Tarpaulin windbreaks pegged into the sand, wire spools, everything lashed down against weather.
 
