@@ -28,7 +28,7 @@ So each island reads as three layers stacked:
 
 ---
 
-## 2. Island 4 — The Stilt Flats
+## 2. Island 4 — The Stilt Flats — **BUILT 2026-08-11**
 
 | | |
 |---|---|
@@ -36,6 +36,13 @@ So each island reads as three layers stacked:
 | Diameter / Altitude | 140 / 1600 |
 | Pit gravity | ×2.3 |
 | Palette | Terracotta, warm wood, pale blue |
+
+> **As built:** 551 parts. Ground and keel cloned from island 3 and rescaled ×0.875, restratified
+> in clay. 27 cracked plates on a jittered lattice (cell 17, ~40% merged into longer plates, three
+> top heights 0.08 apart so no pair can z-fight). 7 stilt frames with decks at +2.6 to +8.4 and
+> 3 rope bridges; 5 windsocks, bunting, laundry and clutter, all on one wind bearing of 52°.
+> Clay Flat pit at (−26, −18), Ø42 zone, rim top +1.35. Medal cache at (14, 34) under a stilt
+> pavilion. Reached by the [level 3 cloud field](Leg%20Day%20-%20Cloud%20Field.md) (129 clouds).
 
 A cracked terracotta plateau split into big flat plates. Everything built on it stands on wooden legs — a rickety stilt village of platforms and rope bridges, which is the game's first joke about legs. Windsocks, bunting, laundry lines at a permanent lean, all reading the breeze.
 
@@ -194,6 +201,8 @@ Four things to settle before island 4 is built, not after.
 1. **Man-made structures vs. the storybook art brief.** The design doc's visual reference is beach islands, mushrooms, bunting, warm wood. Seven abandoned industrial workshops is a different register. The mitigation is that everything is *abandoned, overgrown, and whimsically proportioned* — painted machinery, chunky rounded silhouettes, no gritty realism, no rust-and-grime texturing. But it's a real tension and it wants a decision rather than a hope.
 
 2. **Tall props are a documented cloud-field hazard.** Cloud Field §4 already caught this once: island 2's tree canopies reach 431, which turned an 80-stud entry hop into a 49-stud one and had to be made non-collidable. Turbines, gantries and pylons are exactly that failure mode, and they're the hero props for islands 6, 8 and 9. Either make them non-collidable or site them clear of entry clouds — and **run the entry-clearance check after set dressing, not before**, against the 4-stud grid the cloud doc specifies.
+
+   *Confirmed twice while building island 4.* Island 3's canopies were still collidable at +27.3 and would have collapsed level 3's gate; they are now non-collidable, matching island 2. And island 4's own stilt decks are collidable at up to **+8.4 above its clay**, which is deliberate — they are meant to be jumped onto — but it means **level 4's entry band must be measured from 1608.4, not 1600**. Every island from here up should record its highest standable point alongside its altitude, because the next level's gate is computed from it.
 
 3. **Nothing may read as a shopfront.** Islands 2–10 carry no vendor (settled decision); every shop is on island 1. The Pump House and the Springworks are exactly the kind of building a player walks up to expecting to buy pistons. Keep them sealed, derelict, or clearly non-interactive.
 

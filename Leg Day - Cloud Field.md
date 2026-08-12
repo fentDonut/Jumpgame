@@ -268,27 +268,57 @@ Every one of these was hit for real. They fail *quietly* — the build completes
 - **A field can pass every connectivity rule and still be useless.** 35 clouds in a line satisfies
   "no traps" trivially. The report gates on cloud count, entry count, ways onto the upper island,
   and branching fraction as well.
+- **The gate hop onto the upper island is Perfect-only by construction, so the fault test must
+  exempt it.** §4.1 puts that hop above the untrained peak, which also puts it above the *trained*
+  player's Good (a Good peaks at `72·(0.92·S)²`, ~15% under a Perfect). A repair pass that treats
+  "easiest exit demands a Perfect" as a fault will therefore condemn every top-band cloud, delete
+  them, and cascade: on level 3 that took the field from 131 clouds to 38 in one pass. The
+  Perfect-only rule is about *cloud-to-cloud* progression only. Same for the entry hop.
+- **The repair pass must not move clouds vertically.** Level 3's first repair searched
+  `dy ∈ {0,−8,−16,+8,−24}` as §12 describes, which widened band 9's spread from 6 studs to 13 and
+  produced same-band pairs 10.7 studs apart — a staircase, exactly what the bullet above this one
+  warns about, reintroduced by the fix rather than the fill. Repair horizontally, re-level any band
+  that drifts, and re-run the shortest-climbing-hop check afterwards.
+- **The shortest-climbing-hop check is against `band spacing − 2 × jitter`, not the spacing.** With
+  ±3 jitter on a 57.5 spacing the tightest legal adjacent-band hop is 51.5. Level 2 reports 39
+  against a 45–53 spacing for the same reason. Measure same-band links separately; they are lateral
+  moves, not climbs.
+- **Check the lower island's collidable props before trusting the gate, not just its canopies.**
+  Island 3's tree canopies were still collidable and stood 27.3 studs above its grass — the island 2
+  fix from this section had never been applied to island 3 — which would have turned level 3's
+  92-stud entry hop into 65 and opened the gate completely. After de-colliding them the island still
+  tops out at 956.1 on a sign board, a knoll and the cache plinth, all legitimately walkable, so the
+  gate is computed against 956.1 rather than the 950 grass. **Measure on a Cartesian grid**: the
+  polar scan used first under-samples the rim and missed the sign board entirely.
 
 ---
 
-## 10. Current state (2026-08-09)
+## 10. Current state (2026-08-11)
 
-| | Level 1 (island 1 → 2) | Level 2 (island 2 → 3) |
-|---|---|---|
-| Altitudes | 0 → 400 | 400 → 950 |
-| Design S | 1.00 | 1.11 |
-| Layout | free scatter | **banded** (see §4.1) |
-| Landable clouds | 125 | 154 |
-| Scenery clouds | 472 | 600 |
-| Traps / orphans | 0 / 0 | 0 / 0 |
-| Reachable from below | 125 of 125 | 154 of 154 |
-| Departure points | 25 | 6 |
-| Clouds reaching the island above | 9 | 12 |
-| Distinct routes | 275 | >1,000,000 |
-| Clouds offering a choice | 38 | 117 |
-| Climbing hop: shortest / median / longest | — | 39 / 48 / 58 |
-| Vertical / radial span | y 45–381, r 34–211 | y 477–876, r ≤300 |
-| **Gated against an untrained arrival** | no, by design | **yes — 0 clouds reachable at S = 1.02** |
+| | Level 1 (island 1 → 2) | Level 2 (island 2 → 3) | Level 3 (island 3 → 4) |
+|---|---|---|---|
+| Altitudes | 0 → 400 | 400 → 950 | 950 → 1600 |
+| Design S | 1.00 | 1.11 | 1.20 |
+| Layout | free scatter | **banded** (see §4.1) | **banded**, 9 bands |
+| Landable clouds | 125 | 154 | 129 |
+| Scenery clouds | 472 | 600 | 430 |
+| Traps / orphans | 0 / 0 | 0 / 0 | 0 / 0 |
+| Reachable from below | 125 of 125 | 154 of 154 | 129 of 129 |
+| Departure points | 25 | 6 | 12 |
+| Clouds reaching the island above | 9 | 12 | 11 |
+| Distinct routes | 275 | >1,000,000 | ~479,000,000 |
+| Clouds offering a choice | 38 | 117 | 115 (89%) |
+| Climbing hop: shortest / median / longest | — | 39 / 48 / 58 | 51.9 / 57.5 / 62.6 |
+| Vertical / radial span | y 45–381, r 34–211 | y 477–876, r ≤300 | y 1046–1511, r 36–221 |
+| **Gated against an untrained arrival** | no, by design | **yes — 0 clouds reachable at S = 1.02** | **yes — 0 clouds reachable at S = 1.11** |
+
+**Level 3 is sparser than level 2 on purpose** — 129 clouds against 154, over a taller span
+(650 studs against 550) and with hops half again as long (median rise 57.5 against 48). That is
+the design doc's "sparser the higher you go" showing up as a measured number for the first time.
+
+**Level 3's difficulty histogram**, by the easiest onward *cloud* hop: Weak 19, Okay 90, Good 16,
+Perfect 0, and 4 clouds whose only exit is the island hop itself. Compare level 1's "mostly Weak
+and Okay" — level 3 has moved up a notch without any cloud being stranded behind a Perfect.
 
 Plus 85 small scenery clouds in `World.Clouds` around island 1.
 
@@ -301,12 +331,19 @@ vary 16–68, gaps 17–35, cloud diameters 19–29. The doc's shape assumed a s
 no longer exists. What is preserved is the thing the numbers were protecting — that level 1 is
 forgiving — now measured directly as the difficulty histogram instead of as a Ø-to-gap ratio.
 
+Level 3 departs the same way. §7.2 gives it 12 hops rising 57 with a 35-stud gap and Ø38 clouds;
+built, it is **10 hops** (island → 9 bands → island) rising 51.9–62.6, with clouds Ø22–32 whose
+*measured* usable radius is 6–12. The hop count is lower because the two gate hops of ~90 studs
+eat 180 of the 650-stud climb on their own, which §7.2 does not model — it assumes uniform hops.
+Worth reconciling in Numbers when that table is finally rebuilt for the 1.32× airtime stretch,
+since gate hops will only get more expensive as the peaks rise.
+
 ---
 
-## 11. Extending to level 3 and beyond
+## 11. Extending to level 4 and beyond
 
-Levels 1 and 2 are built; §12 lists both side by side, which is the easiest way to see which
-knobs move with altitude. Everything is parameterised on the two islands the level spans.
+Levels 1, 2 and 3 are built; §12 lists all three side by side, which is the easiest way to see
+which knobs move with altitude. Everything is parameterised on the two islands the level spans.
 For level *N*:
 
 - **Upper island altitude, rim radius and keel profile** — from the island above
@@ -316,6 +353,14 @@ For level *N*:
   the single most important line to change; forgetting it makes a high level trivially easy.
 - **Band quotas** — scale with the field radius
 - **Field radius** — the upper island's keel sets the minimum; sparser higher up per the design doc
+- **The gate window, and how much of it the lower island's own relief eats.** The two gate hops
+  have to land between the untrained peak and the trained one. On level 3 that window is
+  88.71 → 103.68, only **15 studs**, and island 3's surface relief (6.1 studs between its grass and
+  the top of a knoll) consumes 40% of it before any cloud is placed. The window is a fixed ~17% of
+  the trained peak, so it *widens* in absolute terms with altitude — 25 studs by level 6, 50 by
+  level 9 — while island relief stays roughly constant. **Level 3 is therefore the tightest gate in
+  the game**, and the lower island's tallest walkable prop is a real parameter, not set dressing.
+  Measure it before choosing the entry band, and re-measure after any set-dressing pass.
 
 The design doc calls for clouds to get sparser with altitude and to reposition every 30 minutes.
 Repositioning will need the reachability graph re-validated after every shuffle — §13 is the piece
@@ -328,31 +373,31 @@ just its position.
 
 Physics is in §4, lobe geometry in §7. The rest:
 
-| Group | Level 1 | Level 2 |
-|---|---|---|
-| Lower / upper altitude | 0 → 400 | 400 → 950 |
-| Upper rim radius | 82 | 82 |
-| Upper keel `{y, radius}` | `{400,82} {391,83} {375,77} {355,65} {333,49} {311,31} {295,13} {286,0}` | same shape at +550 |
-| Play volume | radius 252, y 46–382 | radius 300, y 477–876 |
-| Hop limits | rise 16–68, margin 5 | margin 5; band spacing sets the rise |
-| Bands | none (free scatter) | 9, at y 480, 525, 577, 623, 672, 722, 768, 816, 873; spacing 45–53, ±3 jitter |
-| Band populations | — | 6 / 12 / 18 / 24 / 26 / 24 / 18 / 14 / 12 |
-| Gate hops | none | entry 80 studs, island 77 — both above the 74.9 untrained peak |
-| Separation | 28 (24 when repairing) | 34 |
-| Keel clearance | 20 studs outside `keelRadius(y)` | same |
-| Skeleton entries (bearing°, radius) | (6,74) (87,74) (126,86) (219,90) (276,90) | (25,52) (100,44) (170,60) (245,50) (315,58) |
-| Skeleton walk | 11 steps, rise 30–46, gap 17–24 | 11 steps, rise 38–56, gap 26–38 |
-| Walk shape | heading turn ±1.15 rad, fork p = 0.4 to step 8, max 10 strands, 40 attempts per step | same, fork p = 0.42, turn ±1.1 |
-| Skeleton bound | r ≤ 0.78 × field radius; last two steps steer to 112 then 100 | same; steer to 126 then 108 |
-| Random fill | cap 288, 6 × 900 attempts, uniform over the whole disc | cap 300, 6 × 1100 |
-| Density neighbourhood | 62 | 75 |
-| Band quotas (radius : keep) | 0–70:11, 70–110:26, 110–165:76, 165–195:11, 195+:1 | 0–70:10, 70–115:24, 115–175:78, 175–210:18, 210+:4 |
-| Floors | ≥ 9 tops, ≥ 16 entries | ≥ 9 tops, ≥ 12 entries |
-| Cloud diameter | 19–29 landable, 10–40 scenery | 20–30 landable, 10–40 scenery |
-| Surface probe | 14 rings × 12 azimuths, spacing 1.8; standable = within 2.5 of the crown | same, spacing 1.9 |
-| Repair search | dy ∈ {0,−6,−12,+6,−18} × 12 azimuths × dr ∈ {4,8,12,16}, 3 rounds | dy ∈ {0,−8,−16,+8,−24} × 12 × dr ∈ {6,12,18,24} |
-| Scenery | 780 attempts, r 150–1250, y −120–900, keep 52% inside r 420 / 74% beyond | 520 attempts, r 255–1150, y 410–1010 |
-| Ground clearance | 14 studs, checked below y = 120 | 14 studs, checked below y = 500 |
+| Group | Level 1 | Level 2 | Level 3 |
+|---|---|---|---|
+| Lower / upper altitude | 0 → 400 | 400 → 950 | 950 → 1600 |
+| Upper rim radius | 82 | 82 | **71.9** (island 4 is Ø140) |
+| Upper keel `{y, radius}` | `{400,82} {391,83} {375,77} {355,65} {333,49} {311,31} {295,13} {286,0}` | same shape at +550 | `{1569,75} {1551,62} {1532,48} {1516,33} {1505,24} {1494,4} {1483,2}` — island 3's keel scaled ×0.875 |
+| Play volume | radius 252, y 46–382 | radius 300, y 477–876 | radius 300 (occupied 36–221), y 1046–1511 |
+| Hop limits | rise 16–68, margin 5 | margin 5; band spacing sets the rise | same as level 2 |
+| Bands | none (free scatter) | 9, at y 480, 525, 577, 623, 672, 722, 768, 816, 873; spacing 45–53, ±3 jitter | 9, at y 1048, 1105.5, 1163, 1220.5, 1278, 1335.5, 1393, 1450.5, 1508; spacing 57.5, ±3 jitter |
+| Band populations | — | 6 / 12 / 18 / 24 / 26 / 24 / 18 / 14 / 12 | target 12/16/18/20/20/18/16/14/12; **built 12/16/17/17/17/14/11/13/12** |
+| Gate hops | none | entry 80 studs, island 77 — both above the 74.9 untrained peak | entry **92**, island **89** — both above the **88.71** untrained peak (S = 1.11) |
+| Separation | 28 (24 when repairing) | 34 | 38 (30 when repairing) |
+| Keel clearance | 20 studs outside `keelRadius(y)` | same | top band pinned to r ≥ 76, i.e. outside island 4's plan footprint entirely |
+| Skeleton entries (bearing°, radius) | (6,74) (87,74) (126,86) (219,90) (276,90) | (25,52) (100,44) (170,60) (245,50) (315,58) | (15,54) (88,46) (162,58) (238,50) (310,60) |
+| Skeleton walk | 11 steps, rise 30–46, gap 17–24 | 11 steps, rise 38–56, gap 26–38 | 8 steps (one per band gap), gap 26–46 |
+| Walk shape | heading turn ±1.15 rad, fork p = 0.4 to step 8, max 10 strands, 40 attempts per step | same, fork p = 0.42, turn ±1.1 | same as level 2, 60 attempts per step, fork to band 7 |
+| Skeleton bound | r ≤ 0.78 × field radius; last two steps steer to 112 then 100 | same; steer to 126 then 108 | last two steps steer to 118 then 96 |
+| Random fill | cap 288, 6 × 900 attempts, uniform over the whole disc | cap 300, 6 × 1100 | per-band targets, 6 passes × 900 attempts per band |
+| Density neighbourhood | 62 | 75 | — (radial quotas applied at sampling, no separate thinning pass) |
+| Band quotas (radius : keep) | 0–70:11, 70–110:26, 110–165:76, 165–195:11, 195+:1 | 0–70:10, 70–115:24, 115–175:78, 175–210:18, 210+:4 | 0–75:9, 75–125:24, 125–195:74, 195–240:16, 240–300:4 |
+| Floors | ≥ 9 tops, ≥ 16 entries | ≥ 9 tops, ≥ 12 entries | ≥ 9 tops, ≥ 9 entries |
+| Cloud diameter | 19–29 landable, 10–40 scenery | 20–30 landable, 10–40 scenery | 22–32 landable, 10–40 scenery |
+| Surface probe | 14 rings × 12 azimuths, spacing 1.8; standable = within 2.5 of the crown | same, spacing 1.9 | same, spacing 2.0 (measured usable radius 6–12, mean 8.2) |
+| Repair search | dy ∈ {0,−6,−12,+6,−18} × 12 azimuths × dr ∈ {4,8,12,16}, 3 rounds | dy ∈ {0,−8,−16,+8,−24} × 12 × dr ∈ {6,12,18,24} | **horizontal only** — dr ∈ {6,10,14,18,22,26,30} × 16 azimuths, 4 rounds (see §9) |
+| Scenery | 780 attempts, r 150–1250, y −120–900, keep 52% inside r 420 / 74% beyond | 520 attempts, r 255–1150, y 410–1010 | 5200 attempts, r 276–1150, y 1000–1780, keep 52% inside r 520 / 74% beyond |
+| Ground clearance | 14 studs, checked below y = 120 | 14 studs, checked below y = 500 | n/a — nothing below level 3 but island 3 |
 
 Level 2 needed four extra departure clouds hand-placed over island 2's open ground after the
 main pass came up one short of the entry floor — the entry test is strict (inside the rim
@@ -376,8 +421,13 @@ rule and still be useless — 35 clouds in a line passes "no traps" trivially.
 | Ground entries | ≥ the configured floor |
 | Clouds reaching the upper island | ≥ the configured floor |
 | Clouds offering a choice | ≥ 10% of the field |
-| **Shortest *climbing* hop** | **≥ the band spacing, ignoring sub-10-stud lateral moves** |
+| **Shortest *climbing* hop** | **≥ band spacing − 2 × jitter**, counting only hops between different bands |
 | **Clouds reachable by an under-levelled player** (gated levels) | **0** |
+
+"Clouds whose easiest onward hop demands a Perfect" counts **cloud-to-cloud** hops only. On a gated
+level the hop onto the upper island is Perfect-only by design (§4.1), so a cloud whose sole exit is
+that hop is correct, not broken — see the §9 bullet, which exists because treating it as a fault
+deleted three quarters of level 3's field.
 
 The last two are the ones that were missing, and both need measuring against the *real* graph
 with no artificial minimum rise. For the gate, run the whole reachability search a second time
