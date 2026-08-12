@@ -188,7 +188,9 @@ These do more work than any individual island theme.
 
 **The pit gets more contained as it gets heavier.** Island 1's sand pit is open ground you walk onto; island 6's is a cut well; island 9's is a shaft you look into. Free visual escalation that tracks §4.3's gravity ramp exactly.
 
-**Undersides are themed.** Islands stack vertically (Cloud Field §1), so an island's belly is what the player stares at for the entire level below it. It's the destination made visible from the start of the climb, and it's free real estate — one material and one light per island.
+**Undersides are themed — and they have to be solid.** Islands stack vertically (Cloud Field §1), so an island's belly is what the player stares at for the entire level below it. It's the destination made visible from the start of the climb, and it's free real estate — one material and one light per island.
+
+*Islands 2, 3 and 4 shipped hollow.* The keel is a ring of angled facets, and the wedge slits between adjacent plates showed open sky from below for the whole climb. Each now carries a `KeelFill` — a stack of axis-aligned discs sized from the narrowest petal at each height, so the slits read as shadow instead of holes. The fill is non-collidable and non-queryable, so it changes nothing about the cloud field's gate. Build it for every island from 5 up as part of the island, not as a later fix; see the see-through-shells entry in the build checklist for the three ways to get it wrong.
 
 **Everything above island 6 is under strain.** Sagging, bowing, tension. The design doc already asks for this around pit rims; above the midpoint it should be the whole island's posture.
 
