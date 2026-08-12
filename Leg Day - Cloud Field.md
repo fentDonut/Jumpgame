@@ -120,7 +120,52 @@ section exists to prevent. Two facts make it easy to get wrong:
 **So gate on the two hops nobody can avoid: getting on, and getting off.** Put the lowest band a
 rise of ~80 above the lower island and the highest band ~77 below the upper one. Both sit in the
 window between the two peaks, so the untrained player cannot start *or* finish, whatever the
-middle of the field looks like. Everything between is then free to be as generous as it needs to be.
+middle of the field looks like.
+
+### 4.1.1 …but the middle still has to be gated, and only the rise can do it
+
+The sentence that used to end the section above — *"everything between is then free to be as
+generous as it needs to be"* — was wrong, and it shipped that way. Gating only the ends leaves a
+field whose interior anyone can climb once they are standing in it, which they will be: a
+checkpoint respawn puts you back on the last cloud you landed on, well inside the field. Measured
+on the first build of level 3, **51% of its climbing hops were clearable with bare starter legs
+(S = 1.00) and all eight band-to-band steps were crossable**. Level 2 measured 70% and 8 of 8.
+
+**Band spacing is the gate for the middle, because peak height is a hard ceiling.** A player at
+S can never rise more than `72·S²` however the horizontal distance is tuned. So:
+
+```
+band spacing − 2·jitter  >  72·S_excluded²        (the middle is impassable below strength)
+band spacing + 2·jitter  <  72·(0.92·S_design)²   (a Good still clears it)
+```
+
+Do **not** try to do this with horizontal distance. At a fixed rise, a weaker player's reach is
+roughly `S_weak/S_design` of the stronger one's, and a Good is already 0.92 of a Perfect — so any
+gap wide enough to stop the weaker player forces everyone else into a flawless Perfect. That is
+the same "horizontal gaps gate weakly" argument as above, applied to the interior.
+
+**This only works from level 3 up.** The window needs `72 < 72·(0.92·S_design)²`, i.e.
+`S_design > 1.087`:
+
+| Level | Design S | A Good peaks at | Usable rise window | Verdict |
+|---|---|---|---|---|
+| 1 | 1.00 | 60.9 | — | nothing to gate; S = 1.00 *is* the design strength |
+| 2 | 1.11 | 75.1 | 72 → 75.1 | **3.1 studs — unusable.** Level 2 cannot be gated against starter legs |
+| 3 | 1.20 | 87.8 | 72 → 87.8 | 15.8 studs — workable, and what level 3 now uses |
+| 4 | 1.32 | 106.2 | 72 → 106.2 | 34.2 studs |
+| 6 | 1.61 | 158.0 | 72 → 158.0 | 86.0 studs |
+
+Level 2 is left as it is. Its own design strength is only 11% above bare starter legs and a Good
+eats 8% of that, so there is no room; and since the expected arrival at island 2 is S = 1.02, the
+distinction it would be enforcing is close to meaningless anyway.
+
+**The cost, which is real: forgiveness goes.** Numbers §7.3 buys "Good/Okay still reaches nearby
+platforms" with filler clouds at a catch ratio of 0.5. A filler cloud close enough to catch a
+Weak jump is by definition a short hop, which is exactly what this rule forbids — and with rises
+above 72 a Weak (peak `72·(0.65·1.20)² = 43.8`) cannot reach the next band at all. So a missed
+jump on level 3 is now a fall to the checkpoint, every time, and §7.3's catch ratio no longer
+describes this level. That is the trade for a gate that actually holds; if it plays badly, the
+lever to move is the band count, not the horizontal spacing.
 
 Two things will quietly defeat this:
 
@@ -268,6 +313,11 @@ Every one of these was hit for real. They fail *quietly* — the build completes
 - **A field can pass every connectivity rule and still be useless.** 35 clouds in a line satisfies
   "no traps" trivially. The report gates on cloud count, entry count, ways onto the upper island,
   and branching fraction as well.
+- **Gating the two ends does not gate the middle, and the difference is not academic.** The
+  checkpoint chain respawns you on the last cloud you landed on, so "you can't get in" is not a
+  property the interior inherits. Both level 2 and the first build of level 3 were fully climbable
+  band to band with bare starter legs while passing every check in §13, because every check
+  started its search at the lower island. See §4.1.1 for the rule and for which levels can hold it.
 - **The gate hop onto the upper island is Perfect-only by construction, so the fault test must
   exempt it.** §4.1 puts that hop above the untrained peak, which also puts it above the *trained*
   player's Good (a Good peaks at `72·(0.92·S)²`, ~15% under a Perfect). A repair pass that treats
@@ -299,26 +349,30 @@ Every one of these was hit for real. They fail *quietly* — the build completes
 |---|---|---|---|
 | Altitudes | 0 → 400 | 400 → 950 | 950 → 1600 |
 | Design S | 1.00 | 1.11 | 1.20 |
-| Layout | free scatter | **banded** (see §4.1) | **banded**, 9 bands |
-| Landable clouds | 125 | 154 | 129 |
+| Layout | free scatter | **banded** (see §4.1) | **banded**, 7 bands |
+| Landable clouds | 125 | 154 | 114 |
 | Scenery clouds | 472 | 600 | 430 |
 | Traps / orphans | 0 / 0 | 0 / 0 | 0 / 0 |
-| Reachable from below | 125 of 125 | 154 of 154 | 129 of 129 |
+| Reachable from below | 125 of 125 | 154 of 154 | 114 of 114 |
 | Departure points | 25 | 6 | 12 |
-| Clouds reaching the island above | 9 | 12 | 11 |
-| Distinct routes | 275 | >1,000,000 | ~479,000,000 |
-| Clouds offering a choice | 38 | 117 | 115 (89%) |
-| Climbing hop: shortest / median / longest | — | 39 / 48 / 58 | 51.9 / 57.5 / 62.6 |
-| Vertical / radial span | y 45–381, r 34–211 | y 477–876, r ≤300 | y 1046–1511, r 36–221 |
+| Clouds reaching the island above | 9 | 12 | 14 |
+| Distinct routes | 275 | >1,000,000 | ~430,000,000 |
+| Clouds offering a choice | 38 | 117 | 103 (90%) |
+| Climbing hop: shortest / median / longest | — | 39 / 48 / 58 | 73.2 / 76.2 / 79.0 |
+| Hops island to island | — | 10 | 8 |
+| Vertical / radial span | y 45–381, r 34–211 | y 477–876, r ≤300 | y 1047–1507, r 46–187 |
 | **Gated against an untrained arrival** | no, by design | **yes — 0 clouds reachable at S = 1.02** | **yes — 0 clouds reachable at S = 1.11** |
+| **Middle gated against starter legs** | no, by design | **no — impossible, see §4.1.1** | **yes — 0 of 236 cross-band hops clearable at S = 1.00** |
 
-**Level 3 is sparser than level 2 on purpose** — 129 clouds against 154, over a taller span
-(650 studs against 550) and with hops half again as long (median rise 57.5 against 48). That is
-the design doc's "sparser the higher you go" showing up as a measured number for the first time.
+**Level 3 is sparser than level 2 on purpose** — 114 clouds against 154, over a taller span
+(650 studs against 550) and with hops well over half again as long (median rise 76.2 against 48).
+That is the design doc's "sparser the higher you go" showing up as a measured number for the
+first time. The rise is not a style choice: §4.1.1 sets it, because anything under 72 lets bare
+starter legs climb the middle.
 
-**Level 3's difficulty histogram**, by the easiest onward *cloud* hop: Weak 19, Okay 90, Good 16,
-Perfect 0, and 4 clouds whose only exit is the island hop itself. Compare level 1's "mostly Weak
-and Okay" — level 3 has moved up a notch without any cloud being stranded behind a Perfect.
+**Level 3's difficulty histogram**, by the easiest onward *cloud* hop: Weak 12, Okay 53, Good 44,
+Perfect 0, and 5 clouds whose only exit is the island hop itself. Level 1 is "mostly Weak and
+Okay"; level 3 has shifted decisively toward Okay/Good, which is the curve doing what it should.
 
 Plus 85 small scenery clouds in `World.Clouds` around island 1.
 
@@ -331,12 +385,14 @@ vary 16–68, gaps 17–35, cloud diameters 19–29. The doc's shape assumed a s
 no longer exists. What is preserved is the thing the numbers were protecting — that level 1 is
 forgiving — now measured directly as the difficulty histogram instead of as a Ø-to-gap ratio.
 
-Level 3 departs the same way. §7.2 gives it 12 hops rising 57 with a 35-stud gap and Ø38 clouds;
-built, it is **10 hops** (island → 9 bands → island) rising 51.9–62.6, with clouds Ø22–32 whose
-*measured* usable radius is 6–12. The hop count is lower because the two gate hops of ~90 studs
-eat 180 of the 650-stud climb on their own, which §7.2 does not model — it assumes uniform hops.
-Worth reconciling in Numbers when that table is finally rebuilt for the 1.32× airtime stretch,
-since gate hops will only get more expensive as the peaks rise.
+Level 3 departs the same way, and further after the §4.1.1 rebuild. §7.2 gives it 12 hops rising
+57 with a 35-stud gap and Ø38 clouds; built, it is **8 hops** (island → 7 bands → island) rising
+73.2–79.0, with clouds Ø22–32 whose *measured* usable radius is 6–12. Two reasons it is shorter:
+the gate hops of ~92 and ~93 eat 185 of the 650-stud climb on their own, which §7.2 does not
+model, and the interior rise is now pinned above 72 to gate the middle rather than chosen for
+pacing. **§7.2's per-level hop counts and gaps are now wrong for any gated level** and should be
+re-derived from §4.1.1 when that table is rebuilt for the 1.32× airtime stretch, not just
+rescaled.
 
 ---
 
@@ -380,9 +436,11 @@ Physics is in §4, lobe geometry in §7. The rest:
 | Upper keel `{y, radius}` | `{400,82} {391,83} {375,77} {355,65} {333,49} {311,31} {295,13} {286,0}` | same shape at +550 | `{1569,75} {1551,62} {1532,48} {1516,33} {1505,24} {1494,4} {1483,2}` — island 3's keel scaled ×0.875 |
 | Play volume | radius 252, y 46–382 | radius 300, y 477–876 | radius 300 (occupied 36–221), y 1046–1511 |
 | Hop limits | rise 16–68, margin 5 | margin 5; band spacing sets the rise | same as level 2 |
-| Bands | none (free scatter) | 9, at y 480, 525, 577, 623, 672, 722, 768, 816, 873; spacing 45–53, ±3 jitter | 9, at y 1048, 1105.5, 1163, 1220.5, 1278, 1335.5, 1393, 1450.5, 1508; spacing 57.5, ±3 jitter |
-| Band populations | — | 6 / 12 / 18 / 24 / 26 / 24 / 18 / 14 / 12 | target 12/16/18/20/20/18/16/14/12; **built 12/16/17/17/17/14/11/13/12** |
-| Gate hops | none | entry 80 studs, island 77 — both above the 74.9 untrained peak | entry **92**, island **89** — both above the **88.71** untrained peak (S = 1.11) |
+| Bands | none (free scatter) | 9, at y 480, 525, 577, 623, 672, 722, 768, 816, 873; spacing 45–53, ±3 jitter | **7**, at y 1048, 1124.2, 1200.3, 1276.5, 1352.7, 1428.8, 1505; spacing **76.2**, **±1.5 jitter** |
+| Why that spacing | — | pacing | **§4.1.1**: min rise 73.2 > S=1.00's 72-stud peak; max 79.2 < a design Good's 87.8 |
+| Band populations | — | 6 / 12 / 18 / 24 / 26 / 24 / 18 / 14 / 12 | target 14/17/19/19/18/16/14; **built 114 total** |
+| Gate hops | none | entry 80 studs, island 77 — both above the 74.9 untrained peak | entry **92**, island **93** — both above the **88.71** untrained peak (S = 1.11) |
+| Middle gate | none | none possible (§4.1.1) | **every cross-band rise ≥ 73.2**, above S=1.00's hard ceiling |
 | Separation | 28 (24 when repairing) | 34 | 38 (30 when repairing) |
 | Keel clearance | 20 studs outside `keelRadius(y)` | same | top band pinned to r ≥ 76, i.e. outside island 4's plan footprint entirely |
 | Skeleton entries (bearing°, radius) | (6,74) (87,74) (126,86) (219,90) (276,90) | (25,52) (100,44) (170,60) (245,50) (315,58) | (15,54) (88,46) (162,58) (238,50) (310,60) |
@@ -423,6 +481,14 @@ rule and still be useless — 35 clouds in a line passes "no traps" trivially.
 | Clouds offering a choice | ≥ 10% of the field |
 | **Shortest *climbing* hop** | **≥ band spacing − 2 × jitter**, counting only hops between different bands |
 | **Clouds reachable by an under-levelled player** (gated levels) | **0** |
+| **Cross-band hops clearable at S = 1.00** (gated levels, §4.1.1) | **0** |
+| **Band-to-band steps crossable at S = 1.00** (gated levels, §4.1.1) | **0 of N−1** |
+
+The last two are the ones that were missing until level 3 was rebuilt, and they are not implied by
+the under-levelled check above it: that one starts the search from the lower island and so is
+satisfied by the entry gate alone. These start the search *from inside the field*, which is where a
+checkpoint respawn actually puts the player. Run the reachability a third time with the starter-leg
+model seeded at every cloud, not at the island.
 
 "Clouds whose easiest onward hop demands a Perfect" counts **cloud-to-cloud** hops only. On a gated
 level the hop onto the upper island is Perfect-only by design (§4.1), so a cloud whose sole exit is
